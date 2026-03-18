@@ -7,11 +7,14 @@
 body {
   font-family: 'Source Sans 3', sans-serif;
   background: #f4f6f8;
+<<<<<<< HEAD
   background-image: url('img\\BG.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+=======
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -41,7 +44,11 @@ nav {
 }
 
 .nav-links a {
+<<<<<<< HEAD
   color: #fcff4f;
+=======
+  color: #e2e8f0;
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
   text-decoration: none;
   font-size: 0.95rem;
   transition: color .2s;
@@ -49,6 +56,7 @@ nav {
 
 .nav-links a:hover,
 .nav-links a.active { 
+<<<<<<< HEAD
   color: #fef8b6; 
 }
 
@@ -75,6 +83,9 @@ nav {
 
 .navbar-nav .nav-link.active { 
   background:rgba(201,168,76,.2); 
+=======
+  color: #fff; 
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 }
 
 /* ── LOGIN PAGE ── */
@@ -100,6 +111,7 @@ nav {
 
 /* NAV LOGO - UPPER RIGHT CORNER */
 .nav-logo {
+<<<<<<< HEAD
   width: 28px !important;
   height: 28px !important;
   object-fit: contain;
@@ -111,6 +123,13 @@ nav {
 .navbar-brand:hover .nav-logo {
   transform: translate(1px, 3px);
 }
+=======
+  width: 45px;
+  height: auto;
+  border-radius: 4px;
+}
+
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 
 .logo-fallback {
   display: none;
@@ -133,10 +152,13 @@ nav {
 }
 
 /* ── REGISTER PAGE ── */
+<<<<<<< HEAD
 .register-wrapper { 
   min-height: calc(100vh - 56px); 
 }
 
+=======
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 .register-page main {
   flex: 1;
   display: flex;
@@ -156,6 +178,7 @@ nav {
 }
 
 .btn-back {
+<<<<<<< HEAD
   background:rgba(136, 35, 231, 0.15); 
   color:#ffffff;
   border:1px solid rgba(255,255,255,.25); 
@@ -188,13 +211,36 @@ nav {
   top:-50px; right:-50px;
   width:160px; height:160px; border-radius:50%;
   background:rgba(201,168,76,.15);
+=======
+  position: absolute;
+  top: 1.4rem;
+  left: 1.4rem;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: .35rem .9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+  text-decoration: none;
+}
+
+.btn-back:hover { 
+  background: #b91c1c; 
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 }
 
 .register-card h1 {
   text-align: center;
   font-size: 1.6rem;
   font-weight: 700;
+<<<<<<< HEAD
   color: #291e3b;
+=======
+  color: #1e293b;
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
   margin-bottom: 2rem;
 }
 
@@ -204,6 +250,7 @@ nav {
   align-items: flex-start;
 }
 
+<<<<<<< HEAD
 .section-heading {
   font-size:.7rem; font-weight:700; letter-spacing:.1em;
   text-transform:uppercase; color:#330091;
@@ -212,10 +259,13 @@ nav {
 }
 .section-heading:first-of-type { margin-top:0; }
 
+=======
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 .form-col {
   flex: 1;
 }
 
+<<<<<<< HEAD
 /* ── FORM FIELDS (Shared) ── */
   .field-group {
     margin-bottom: 1.1rem;
@@ -332,6 +382,55 @@ nav {
   border-top:1px solid #f3f4f6; 
   padding-top:1.5rem; 
   margin-top:1.75rem; 
+=======
+.illustration-col {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.svg-illustration {
+  width: 200px;
+}
+
+/* ── FORM FIELDS (Shared) ── */
+.field-group {
+  margin-bottom: 1.1rem;
+}
+
+.field-group input,
+.field-group select {
+  width: 100%;
+  padding: .55rem .75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #334155;
+  outline: none;
+  background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+  font-family: inherit;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.82rem;
+  color: #475569;
+  margin-top: .3rem;
+}
+
+.field-group input::placeholder { 
+  color: #94a3b8; 
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
 }
 
 /* ── LOGIN SPECIFIC ── */
@@ -409,6 +508,7 @@ nav {
   text-decoration: underline; 
 }
 
+<<<<<<< HEAD
 /* Remove old nav-dot since we're not using it anymore */
 .nav-dot { display: none; }
 
@@ -1019,3 +1119,46 @@ h1, h2, h3, h4, h5, h6,
 .tbl-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: .78rem; color: var(--text3); }
 .gap-2 { gap: .5rem !important; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 6px 0 18px; }
+=======
+/* ── REGISTER BUTTON ── */
+.btn-register {
+  display: block;
+  margin: 1.8rem auto 0;
+  padding: .65rem 2.5rem;
+  background: #6025eb;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  letter-spacing: 0.02em;
+}
+
+.btn-register:hover { 
+  background: #483d8b; 
+}
+
+.btn-register:active { 
+  transform: scale(.98); 
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .register-body {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .illustration-col {
+    width: 180px;
+  }
+}
+>>>>>>> 7e2de7b9f2d4dd9993a716ab1d8927df19143481
