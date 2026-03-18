@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CCS Sit-in MS | Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="register-page">
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <a class="navbar-brand fw-semibold d-flex align-items-center" href="index.html" style="font-size:.9rem; text-decoration: none;">
+      <img src='img\CCS.png' alt='CCS' class="nav-logo me-2" onerror="this.src='img\CCS.png'; this.onerror=null;"/>
+      College of Computer Studies Sit-in Monitoring System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item"><a class="nav-link" href="#/home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#/community">Community ▾</a></li>
+        <li class="nav-item"><a class="nav-link" href="#/about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link active" href="register.html">Register</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="d-flex justify-content-center align-items-start py-4 px-3 register-wrapper">
+    <div class="register-card bg-white">
+
+      <div class="card-header-register d-flex align-items-center justify-content-between">
+      <a href="index.html" class="btn-back">← Back</a>
+        <div>
+          <h1 class="mb-1">Get started on CCS Sit-in Monitoring System</h1>
+          <p>Create an account to access the sit-in monitoring system.</p>
+        </div>
+      </div>
+
+      <div class="register-body">
+        <!-- FORM COLUMN -->
+        <div class="p-4 p-md-5">
+        <form id="register-form">
+          <!-- Personal Info -->
+          <p class="section-heading">PERSONAL INFORMATION</p>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="idNumber" class="form-label">ID Number</label>
+              <input type="text" class="form-control" id="idNumber" name="idNumber" placeholder="enter your ID number" required/>
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com" required/>
+            </div>
+            <div class="col-md-4">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required/>
+            </div>
+            <div class="col-md-4">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required/>
+            </div>
+            <div class="col-md-4">
+              <label for="middleName" class="form-label">
+                Middle Name <span class="text-muted fw-normal" style="font-size:.7rem;">(optional)</span>
+              </label>
+              <input type="text" class="form-control" id="middleName" name="middleName" placeholder="Middle Name"/>
+            </div>
+            <div class="col-12">
+              <label for="address" class="form-label">Address</label>
+              <input type="text" class="form-control" id="address" name="address" placeholder="City, Province" required/>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <p class="section-heading">PASSWORD</p>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Minimum 8 characters" required/>
+              <div class="strength-bar mt-2">
+                <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="repeatPassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="repeatPassword" name="repeatPassword" placeholder="Repeat your password" required/>
+            </div>
+          </div>
+
+          <!-- Academic Information -->
+          <p class="section-heading">ACADEMIC INFORMATION</p>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="course" class="form-label">Course</label>
+              <select class="form-select" id="course" name="course" required>
+                <option value="" disabled selected>Choose your program</option>
+                <option value="BSIT">BSIT</option>
+                <option value="BSCS">BSCS</option>
+                <option value="BSCRIM">BSCRIM</option>
+                <option value="BSCA">BSCA</option>
+                <option value="BSED">BSED</option>
+                <option value="BSCE">BSCE</option>
+                <option value="BSN">BSN</option>
+                <option value="BSHM">BSHM</option>
+                <option value="BSA">BSA</option>
+                <option value="BSBA">BSBA</option>
+                <option value="BSME">BSME</option>
+                <option value="BSOA">BSOA</option>
+                <option value="BSREM">BSREM</option>
+                <option value="BSTM">BSTM</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="courseLevel" class="form-label">Year Level</label>
+              <select class="form-select" id="courseLevel" name="courseLevel" required>
+                <option value="" disabled selected>Select year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+                <option value="5">5th Year</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="form-footer d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <p class="login-hint mb-0">Already have an account? <a href="index.html">Login here</a></p>
+            <button type="submit" class="btn btn-sims text-white">Create Account</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

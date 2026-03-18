@@ -1,0 +1,36 @@
+<?php
+session_start();
+header('Content-Type: application/json');
+require_once 'config.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $idNumber = trim($_POST['idNumber'] ?? '');
+    $password = $_POST['password']      ?? '';
+
+    if (!$idNumber || !$password) {
+        echo json_encode(['success' => false, 'message' => 'Please enter your ID and password.']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id_number = ?");
+    $stmt->execute([$idNumber]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user']    = $user;
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Login successful',
+            'user'    => [
+                'name' => $user['first_name'] . ' ' . $user['last_name']
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid ID number or password.']);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+}
+?>
