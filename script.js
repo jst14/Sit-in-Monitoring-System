@@ -19,19 +19,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ── SAFE FETCH HELPER ──
-       Fetches a PHP endpoint and always returns parsed JSON.
-       If PHP returns a non-JSON body (HTML error page, etc.),
-       it shows the raw text so you can see the real problem.
-    ── */
+    /* ── SAFE FETCH HELPER ── */
     async function safeFetch(url, formData) {
         let rawText = '';
         try {
             const res = await fetch(url, { method: 'POST', body: formData });
-            rawText   = await res.text();          // grab raw text first
-            return JSON.parse(rawText);            // then try to parse
+            rawText   = await res.text();
+            return JSON.parse(rawText);
         } catch (err) {
-            // If JSON.parse failed, rawText has the actual PHP error/HTML
             const preview = rawText
                 ? rawText.replace(/<[^>]*>/g, '').trim().slice(0, 300)
                 : 'No response from server.';
@@ -91,15 +86,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /* ============================================================
    CCS Sit-in Portal – Student Dashboard
+   ============================================================
+   S is populated from window.__SESSION__ which is injected
+   by dashboard.php using real PHP session data.
+   Falls back to defaults so the file still works standalone.
    ============================================================ */
 
+const _sess = window.__SESSION__ || {};
+
 const S = {
-    first: 'Nacht', middle: 'B.', last: 'Faust',
-    id: '20210300',
-    email: 'nacht.faust@email.com',
-    address: 'Black Bulls Hideout, Hage Village',
-    course: 'BSIT', year: '3rd Year',
-    session: 30, totalSession: 30,
+    first:        _sess.first        || '',
+    middle:       _sess.middle       || '',
+    last:         _sess.last         || '',
+    id:           _sess.id           || '',
+    email:        _sess.email        || '',
+    address:      _sess.address      || '',
+    course:       _sess.course       || '',
+    year:         _sess.year         || '',
+    session:      _sess.session      ?? 30,
+    totalSession: _sess.totalSession ?? 30,
 };
 
 let historyData   = [];
