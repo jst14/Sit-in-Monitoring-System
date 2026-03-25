@@ -491,7 +491,7 @@ if (!isset($_SESSION['user_id'])) {
             <img id="profAvatar"
                  src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/06cafb7d-ed87-4037-99a8-0c5fcbaa4f0b/df4qyzu-ce57b973-ae64-483c-b4cf-99f4666460b2.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi8wNmNhZmI3ZC1lZDg3LTQwMzctOTlhOC0wYzVmY2JhYTRmMGIvZGY0cXl6dS1jZTU3Yjk3My1hZTY0LTQ4M2MtYjRjZi05OWY0NjY2NDYwYjIucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.1redMb-TkOFBQX8JmziVLpUY_8pVc9GhXTz7qeK6XwQ"
                  alt="Profile Avatar" />
-            <div class="profile-name" id="profName">Kimmy D. Yammy</div>
+            <div class="profile-name" id="profName">Nacht Faust</div>
             <div class="profile-role" id="profRole">BSIT · 3rd Year</div>
             <button class="btn-photo" onclick="triggerPhotoInput()">
               <i class="fa-solid fa-camera"></i> Change Photo
