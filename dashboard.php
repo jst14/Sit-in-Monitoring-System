@@ -5,6 +5,19 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.html");
     exit();
 }
+
+/* ── Prepare display values ──────────────────────────────────── */
+// Convert numeric year_level (1–5) to display string for the JS layer and selects
+$yearLabels  = [1 => '1st Year', 2 => '2nd Year', 3 => '3rd Year', 4 => '4th Year', 5 => '5th Year'];
+$yearRaw     = (int) ($_SESSION['year_level'] ?? 1);
+$yearDisplay = $yearLabels[$yearRaw] ?? $yearRaw . 'th Year';
+
+// Build avatar src: use saved photo when it exists, otherwise a deterministic dicebear fallback
+$savedPic  = $_SESSION['profile_pic'] ?? '';
+$avatarSrc = (!empty($savedPic) && file_exists($savedPic))
+    ? htmlspecialchars($savedPic) . '?v=' . filemtime($savedPic)   // cache-bust on file change
+    : 'https://api.dicebear.com/8.x/adventurer/svg?seed='
+      . urlencode($_SESSION['id_number'] ?? 'default') . '&backgroundColor=b6e3f4';
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +52,7 @@ if (!isset($_SESSION['user_id'])) {
   <div class="container-fluid px-0">
 
     <a class="navbar-brand" href="#">
-      <span class="brand-pip"></span> CCS Sit-in Monitoring System
+      <span class="brand-pip"></span> CCS Sit-in Monitoring System: DASHBOARD
     </a>
 
     <button class="navbar-toggler border-0" type="button"
@@ -56,7 +69,7 @@ if (!isset($_SESSION['user_id'])) {
           <a class="nav-link dropdown-toggle" href="#" id="notifToggle"
              data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fa-regular fa-bell"></i> Notification
-            <span class="notif-badge" id="notifBadge">3</span>
+            <span class="notif-badge" id="notifBadge" style="display:none">0</span>
           </a>
           <div class="dropdown-menu ccs-dropdown-menu p-0" aria-labelledby="notifToggle" style="width:290px">
             <div class="notif-header">
@@ -64,27 +77,7 @@ if (!isset($_SESSION['user_id'])) {
               <span class="notif-clear" onclick="clearNotifs()">Clear all</span>
             </div>
             <div id="notifItems">
-              <div class="notif-item">
-                <div class="notif-icon green"><i class="fa-solid fa-circle-check"></i></div>
-                <div>
-                  <div class="notif-title">Reservation Approved</div>
-                  <div class="notif-time">Lab 526 · Today, 9:00 AM</div>
-                </div>
-              </div>
-              <div class="notif-item">
-                <div class="notif-icon blue"><i class="fa-solid fa-envelope"></i></div>
-                <div>
-                  <div class="notif-title">New Announcement from Admin</div>
-                  <div class="notif-time">Feb 14, 2026</div>
-                </div>
-              </div>
-              <div class="notif-item">
-                <div class="notif-icon gold"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div>
-                  <div class="notif-title">Session reminder: 30 remaining</div>
-                  <div class="notif-time">Yesterday</div>
-                </div>
-              </div>
+              <div class="notif-empty">Loading notifications...</div>
             </div>
           </div>
         </li>
@@ -102,6 +95,11 @@ if (!isset($_SESSION['user_id'])) {
         <li class="nav-item">
           <a class="nav-link" data-tab="history" onclick="switchTab('history')">
             <i class="fa-solid fa-clock-rotate-left"></i> History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="summary" onclick="switchTab('summary')">
+            <i class="fa-solid fa-chart-pie"></i> My Summary
           </a>
         </li>
         <li class="nav-item">
@@ -127,7 +125,8 @@ if (!isset($_SESSION['user_id'])) {
 
   <!-- ██████████████  HOME VIEW  ██████████████ -->
   <div class="view active" id="view-home">
-    <div class="row g-4">
+    <!-- Top Row: Main Dashboard Cards -->
+    <div class="row g-4 mb-4">
 
       <!-- LEFT: Student Info -->
       <div class="col-lg-3">
@@ -137,8 +136,9 @@ if (!isset($_SESSION['user_id'])) {
           </div>
 
           <div class="stu-avatar-wrap">
+            <!-- src is rendered by PHP so the photo shows on first load without JS flicker -->
             <img id="mainAvatar"
-                 src="https://api.dicebear.com/8.x/adventurer/svg?seed=KimmyYammy&backgroundColor=b6e3f4"
+                 src="<?= $avatarSrc ?>"
                  alt="Student Avatar" />
             <div class="stu-name" id="dName">Nacht Faust</div>
             <span class="stu-badge" id="dBadge">BSIT · Year 3</span>
@@ -210,25 +210,47 @@ if (!isset($_SESSION['user_id'])) {
           <div class="ccs-card-header"><i class="fa-solid fa-bolt"></i> Quick Actions</div>
           <div class="ccs-card-body">
             <div class="row g-3">
-              <div class="col-6">
+              <div class="col-4">
                 <button class="qa-btn primary" onclick="switchTab('reservation')">
                   <i class="fa-solid fa-calendar-plus"></i> Reserve a Lab
                 </button>
               </div>
-              <div class="col-6">
+              <div class="col-4">
                 <button class="qa-btn" onclick="switchTab('history')">
                   <i class="fa-solid fa-clock-rotate-left"></i> View History
                 </button>
               </div>
-              <div class="col-6">
+              <div class="col-4">
                 <button class="qa-btn" onclick="switchTab('profile')">
                   <i class="fa-solid fa-user-pen"></i> Edit Profile
                 </button>
               </div>
-              <div class="col-6">
-                <button class="qa-btn" data-bs-toggle="dropdown" onclick="document.getElementById('notifToggle').click()">
-                  <i class="fa-solid fa-bell"></i> Notifications
-                </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sit-in Summary -->
+        <div class="ccs-card">
+          <div class="ccs-card-header"><i class="fa-solid fa-chart-simple"></i> Sit-in Summary</div>
+          <div class="ccs-card-body">
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-label">Total sit-in hours</div>
+                <div class="summary-value" id="summaryHours">0.00</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">Total sessions</div>
+                <div class="summary-value" id="summarySessions">0</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">Average duration</div>
+                <div class="summary-value" id="summaryAvg">0.00</div>
+                <div class="summary-meta">hours per session</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">Longest session</div>
+                <div class="summary-value" id="summaryLongest">0.00</div>
+                <div class="summary-meta">hours</div>
               </div>
             </div>
           </div>
@@ -237,45 +259,31 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Announcements -->
         <div class="ccs-card">
           <div class="ccs-card-header"><i class="fa-solid fa-bullhorn"></i> Announcements</div>
-          <div class="ccs-card-body">
-
-            <div class="ann-item">
-              <div class="ann-meta">
-                <span class="ann-tag">CCS Admin</span>
-                <span class="ann-date"><i class="fa-regular fa-calendar"></i> 2026 Feb 11</span>
-              </div>
-              <div class="ann-text ann-empty">No message content for this announcement.</div>
-            </div>
-
-            <div class="ann-item">
-              <div class="ann-meta">
-                <span class="ann-tag">CCS Admin</span>
-                <span class="ann-date"><i class="fa-regular fa-calendar"></i> 2024 May 08</span>
-              </div>
-              <div class="ann-text">
-                🎉 <strong>Important Announcement</strong> — We are excited to announce the
-                launch of our new website! Explore our latest products and services now!
-              </div>
-            </div>
-
+          <div class="ccs-card-body" id="announcementsContainer">
+            <!-- Announcements will be loaded here -->
           </div>
         </div>
 
-        <!-- Recent Sit-in History (mini) -->
+        <!-- Recent Session Details -->
         <div class="ccs-card">
-          <div class="ccs-card-header"><i class="fa-solid fa-table-list"></i> Recent Sit-in History</div>
+          <div class="ccs-card-header"><i class="fa-solid fa-table-list"></i> Session Details</div>
           <div class="table-responsive">
             <table class="ccs-table">
               <thead>
                 <tr>
-                  <th>Purpose</th><th>Laboratory</th><th>Login</th><th>Logout</th><th>Date</th>
+                  <th>Date</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
+                  <th>Duration</th>
+                  <th>PC No.</th>
+                  <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="miniHistBody">
+              <tbody id="sessionTableBody">
                 <tr class="no-data-row">
-                  <td colspan="5">
+                  <td colspan="6">
                     <i class="fa-regular fa-folder-open" style="font-size:1.3rem;display:block;margin-bottom:8px;opacity:.35"></i>
-                    No records yet
+                    No session records yet
                   </td>
                 </tr>
               </tbody>
@@ -287,6 +295,11 @@ if (!isset($_SESSION['user_id'])) {
 
       <!-- RIGHT: Rules -->
       <div class="col-lg-3 d-none d-lg-block">
+        <div class="d-flex justify-content-end mb-3">
+          <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" type="button">
+            <i class="fa-solid fa-moon"></i> Dark Mode
+          </button>
+        </div>
         <div class="ccs-card">
           <div class="ccs-card-header"><i class="fa-solid fa-shield-halved"></i> Rules &amp; Regulations</div>
           <div class="rules-scroll">
@@ -313,7 +326,40 @@ if (!isset($_SESSION['user_id'])) {
         </div>
       </div><!-- /col right -->
 
-    </div><!-- /row -->
+    </div><!-- /row main -->
+
+    <!-- Bottom Row: Lab Status & Software -->
+    <div class="row g-4">
+      <!-- Laboratory Status -->
+      <div class="col-lg-6 col-xl-4">
+        <div class="ccs-card h-100">
+          <div class="ccs-card-header"><i class="fa-solid fa-building"></i> Laboratory Status</div>
+          <div class="ccs-card-body">
+            <div id="labStatusContainer">
+              <div style="text-align: center; padding: 20px; color: var(--text3);">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+                <p style="margin-top: 10px; font-size: 0.85rem;">Loading labs...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /col -->
+
+      <!-- Available Software -->
+      <div class="col-lg-6 col-xl-4">
+        <div class="ccs-card h-100">
+          <div class="ccs-card-header"><i class="fa-solid fa-microchip"></i> Available Software</div>
+          <div class="ccs-card-body">
+            <div id="softwareListContainer">
+              <div style="text-align: center; padding: 20px; color: var(--text3);">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+                <p style="margin-top: 10px; font-size: 0.85rem;">Loading software...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /col -->
+    </div><!-- /row bottom -->
   </div><!-- /home view -->
 
 
@@ -324,9 +370,6 @@ if (!isset($_SESSION['user_id'])) {
       <div class="view-title">
         <i class="fa-solid fa-clock-rotate-left"></i> History Information
       </div>
-      <button class="btn-ccs-export" onclick="exportCSV()">
-        <i class="fa-solid fa-download"></i> Export CSV
-      </button>
     </div>
 
     <div class="ccs-card">
@@ -354,7 +397,7 @@ if (!isset($_SESSION['user_id'])) {
               <tr>
                 <th>ID Number</th><th>Name</th><th>Purpose</th>
                 <th>Laboratory</th><th>Login</th><th>Logout</th>
-                <th>Date</th><th>Action</th>
+                <th>Date</th><th>Feedback</th><th>Action</th>
               </tr>
             </thead>
             <tbody id="histBody"></tbody>
@@ -369,6 +412,104 @@ if (!isset($_SESSION['user_id'])) {
       </div>
     </div>
   </div><!-- /history view -->
+
+
+  <!-- ██████████████  MY SUMMARY VIEW  ██████████████ -->
+  <div class="view" id="view-summary">
+
+    <div class="view-header">
+      <div class="view-title">
+        <i class="fa-solid fa-chart-pie"></i> My Sit-in Summary
+      </div>
+      <button class="btn-ccs-primary" onclick="exportSummaryPDF()">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF
+      </button>
+    </div>
+
+    <!-- Summary Statistics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="ccs-summary-card" style="border-left: 4px solid #ffff00;">
+          <div class="summary-label">Total Sit-in Hours</div>
+          <div class="summary-value" id="totalHours">0.0h</div>
+          <div class="summary-subtext">cumulative time</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ccs-summary-card" style="border-left: 4px solid #b21111;">
+          <div class="summary-label">Total Sessions</div>
+          <div class="summary-value" id="totalSessions">0</div>
+          <div class="summary-subtext">completed</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ccs-summary-card" style="border-left: 4px solid #db79ff;">
+          <div class="summary-label">Avg Session Duration</div>
+          <div class="summary-value" id="avgDuration">0m</div>
+          <div class="summary-subtext">average length</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ccs-summary-card" style="border-left: 4px solid #ffbf00;">
+          <div class="summary-label">Longest Session</div>
+          <div class="summary-value" id="longestSession">0m</div>
+          <div class="summary-subtext">maximum duration</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session History Table -->
+    <div class="ccs-card">
+      <div class="ccs-card-header">
+        <i class="fa-solid fa-history"></i> Session History
+      </div>
+
+      <div class="ccs-card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div class="tbl-entries d-flex align-items-center gap-2" style="font-size:.82rem;color:var(--text2)">
+            Show
+            <select id="summEntries" onchange="renderSummaryHistory()">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            entries per page
+          </div>
+          <div class="tbl-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="summSearch" placeholder="Search by lab, purpose, date…" oninput="renderSummaryHistory()" />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="ccs-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time In</th>
+                <th>Time Out</th>
+                <th>Duration</th>
+                <th>PC #</th>
+                <th>Laboratory</th>
+                <th>Purpose</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="summBody"></tbody>
+          </table>
+        </div>
+
+        <div class="tbl-footer mt-3">
+          <span id="summInfo">Showing 0 entries</span>
+          <div class="d-flex gap-1" id="summPagination"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /summary view -->
 
 
   <!-- ██████████████  RESERVATION VIEW  ██████████████ -->
@@ -391,7 +532,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label-ccs">ID Number</label>
-                <input class="form-control-ccs" type="text" value="123123123" readonly />
+                <input class="form-control-ccs" type="text" id="rIdNumber" readonly />
               </div>
               <div class="col-md-6">
                 <label class="form-label-ccs">Student Name</label>
@@ -405,11 +546,24 @@ if (!isset($_SESSION['user_id'])) {
                 <label class="form-label-ccs">Laboratory <span style="color:var(--red)">*</span></label>
                 <select class="form-select-ccs" id="rLab">
                   <option value="">Select lab…</option>
-                  <option>Lab 524</option>
-                  <option>Lab 526</option>
-                  <option>Lab 528</option>
-                  <option>Lab 530</option>
+                  <option value="3">Lab 524</option>
+                  <option value="4">Lab 526</option>
+                  <option value="5">Lab 528</option>
+                  <option value="6">Lab 530</option>
+                  <option value="7">Lab 542</option>
+                  <option value="8">MAC</option>
                 </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-ccs">Computer Number <span style="color:var(--red)">*</span></label>
+                <select class="form-select-ccs" id="rComputer" onchange="updateComputerStatus()">
+                  <option value="">Select computer…</option>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                  <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option>
+                  <option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                  <option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option>
+                </select>
+                <div id="computerStatus" style="margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem; border-radius: 6px; display: none;" class="alert alert-info"></div>
               </div>
               <div class="col-md-6">
                 <label class="form-label-ccs">Date <span style="color:var(--red)">*</span></label>
@@ -488,9 +642,16 @@ if (!isset($_SESSION['user_id'])) {
       <div class="col-lg-3">
         <div class="ccs-card">
           <div class="profile-av-card">
-            <img id="profAvatar"
-                 src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/06cafb7d-ed87-4037-99a8-0c5fcbaa4f0b/df4qyzu-ce57b973-ae64-483c-b4cf-99f4666460b2.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi8wNmNhZmI3ZC1lZDg3LTQwMzctOTlhOC0wYzVmY2JhYTRmMGIvZGY0cXl6dS1jZTU3Yjk3My1hZTY0LTQ4M2MtYjRjZi05OWY0NjY2NDYwYjIucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.1redMb-TkOFBQX8JmziVLpUY_8pVc9GhXTz7qeK6XwQ"
-                 alt="Profile Avatar" />
+            <!-- src rendered by PHP — shows saved photo immediately before JS runs -->
+            <div class="prof-avatar-wrap" id="profAvatarWrap">
+              <img id="profAvatar"
+                   src="<?= $avatarSrc ?>"
+                   alt="Profile Avatar" />
+              <!-- Upload spinner overlay — shown while photo is being sent to server -->
+              <div class="avatar-upload-overlay" id="avatarOverlay" style="display:none">
+                <div class="avatar-spinner"></div>
+              </div>
+            </div>
             <div class="profile-name" id="profName">Nacht Faust</div>
             <div class="profile-role" id="profRole">BSIT · 3rd Year</div>
             <button class="btn-photo" onclick="triggerPhotoInput()">
@@ -662,7 +823,73 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 </div>
 
+<!-- Feedback Modal -->
+<div class="modal fade ccs-modal" id="modalFeedback" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="m-icon"><i class="fa-solid fa-comment-dots"></i></div>
+        <div class="m-title">Sit-in Feedback</div>
+        <p class="m-sub">Tell us how your sit-in session went.</p>
+        <div class="mb-3">
+          <label class="form-label">Session</label>
+          <div id="feedbackSessionInfo" style="font-weight:600;color:#480741;"></div>
+        </div>
+        <div class="mb-3 form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="feedbackRating" id="feedbackSatisfied" value="satisfied">
+          <label class="form-check-label" for="feedbackSatisfied">Satisfied</label>
+        </div>
+        <div class="mb-3 form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="feedbackRating" id="feedbackUnsatisfied" value="unsatisfied">
+          <label class="form-check-label" for="feedbackUnsatisfied">Unsatisfied</label>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Comments (optional)</label>
+          <textarea class="form-control" id="feedbackText" rows="4" placeholder="Share what went well or what could improve..."></textarea>
+        </div>
+        <input type="hidden" id="feedbackSitId" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-m-cancel" data-bs-dismiss="modal">Close</button>
+        <button class="btn-m-ok" onclick="submitFeedback()">Save Feedback</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════
+     SESSION BRIDGE — PHP session data → JS global
+     All values are JSON-escaped to prevent XSS.
+     script.js reads window.__SESSION__ on load.
+══════════════════════════════════════════════════════════ -->
+<script>
+window.__SESSION__ = {
+    first:        <?= json_encode($_SESSION['first_name']  ?? '') ?>,
+    middle:       <?= json_encode($_SESSION['middle_name'] ?? '') ?>,
+    last:         <?= json_encode($_SESSION['last_name']   ?? '') ?>,
+    id:           <?= json_encode($_SESSION['id_number']   ?? '') ?>,
+    email:        <?= json_encode($_SESSION['email']       ?? '') ?>,
+    address:      <?= json_encode($_SESSION['address']     ?? '') ?>,
+    course:       <?= json_encode($_SESSION['course']      ?? '') ?>,
+    year:         <?= json_encode($yearDisplay) ?>,              // formatted: "3rd Year"
+    year_raw:     <?= (int) $yearRaw ?>,                         // numeric: 3
+    session:      <?= (int) ($_SESSION['sessions_left'] ?? 30) ?>,
+    totalSession: 30,
+    pic:          <?= json_encode($savedPic) ?>,                 // raw relative path (no ?v=)
+    picSrc:       <?= json_encode($avatarSrc) ?>,                // cache-busted src ready for <img>
+    justLoggedIn: <?= json_encode(!empty($_SESSION['just_logged_in'])) ?>,  // Show modal only once
+};
+<?php
+// Clear the just_logged_in flag after the page has loaded
+unset($_SESSION['just_logged_in']);
+?>
+</script>
+
 <script src="script.js"></script>
 
 </body>

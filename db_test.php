@@ -24,16 +24,16 @@ while ($row = $res->fetch_row()) {
 }
 echo '</ul>';
 
-// Show students columns
-$res2 = $conn->query("SHOW COLUMNS FROM students");
+// Show notifications columns
+$res2 = $conn->query("SHOW COLUMNS FROM notifications");
 if ($res2) {
-    echo '<b>students table columns:</b><ul>';
+    echo '<b>notifications table columns:</b><ul>';
     while ($col = $res2->fetch_assoc()) {
         echo '<li>' . $col['Field'] . ' (' . $col['Type'] . ')</li>';
     }
     echo '</ul>';
 } else {
-    echo '<b style="color:red">No "students" table found!</b><br>';
+    echo '<b style="color:red">No "notifications" table found!</b><br>';
 }
 
 $conn->close();

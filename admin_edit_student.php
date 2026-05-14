@@ -6,7 +6,7 @@ ob_start();
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['user']['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     ob_end_clean();
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit();
@@ -34,7 +34,7 @@ try {
     }
 
     $stmt = $conn->prepare(
-        "UPDATE `users` SET first_name = ?, last_name = ?, course = ?, year_level = ?, remaining_sessions = ?
+        "UPDATE `users` SET first_name = ?, last_name = ?, course = ?, year_level = ?, sessions_left = ?
          WHERE id = ? LIMIT 1"
     );
     $stmt->bind_param('ssssii', $first_name, $last_name, $course, $year_level, $remaining_sessions, $id);

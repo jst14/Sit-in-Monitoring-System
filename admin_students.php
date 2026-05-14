@@ -16,7 +16,7 @@ try {
 
     $res  = $conn->query(
         "SELECT id, id_number, first_name, last_name, middle_name,
-                course, year_level, email, remaining_sessions
+                course, year_level, email, sessions_left
          FROM `users`
          WHERE role = 'student'
          ORDER BY last_name, first_name"
@@ -34,7 +34,7 @@ try {
                 'course'             => $row['course'],
                 'year_level'         => $row['year_level'],
                 'email'              => $row['email'],
-                'remaining_sessions' => $row['remaining_sessions'] ?? 30,
+                'remaining_sessions' => $row['sessions_left'] ?? 30,
             ];
         }
     }

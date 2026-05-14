@@ -2,9 +2,13 @@
 // upload_photo.php
 ini_set('display_errors', 0);
 error_reporting(0);
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.use_only_cookies', 1);
+}
 ob_start();
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
     ob_end_clean();
@@ -48,16 +52,27 @@ try {
     require_once 'config.php';
     $conn = db_connect();
     $uid  = (int) $_SESSION['user_id'];
-    $stmt = $conn->prepare("UPDATE `users` SET profile_photo = ? WHERE id = ? LIMIT 1");
+
+    // FIX: column is `profile_pic` (not `profile_photo`) — matches users table schema
+    $stmt = $conn->prepare("UPDATE `users` SET profile_pic = ? WHERE id = ? LIMIT 1");
     $stmt->bind_param('si', $newname, $uid);
     $stmt->execute();
     $stmt->close();
     $conn->close();
 
-    $_SESSION['user']['profile_photo'] = $newname;
+    // FIX: session stores flat keys (set by login.php), not nested under 'user'
+    $_SESSION['profile_pic'] = $newname;
+
+    // Append a cache-busting timestamp so the browser always fetches the new image
+    $cacheBustedPath = $newname . '?v=' . time();
 
     ob_end_clean();
-    echo json_encode(['success' => true, 'message' => 'Photo updated!', 'path' => $newname]);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Photo updated!',
+        'path'    => $cacheBustedPath,   // use this as the <img> src
+        'raw'     => $newname,           // raw path without query string (for storage)
+    ]);
 
 } catch (Throwable $e) {
     ob_end_clean();

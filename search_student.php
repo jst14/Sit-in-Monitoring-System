@@ -26,12 +26,13 @@ try {
     $like = '%' . $q . '%';
     $stmt = $conn->prepare(
         "SELECT id, id_number, first_name, last_name, course, year_level,
-                remaining_sessions
+                sessions_left AS remaining_sessions
          FROM `users`
-         WHERE id_number  LIKE ?
+         WHERE role = 'student' AND (
+               id_number  LIKE ?
             OR first_name LIKE ?
             OR last_name  LIKE ?
-            OR CONCAT(first_name,' ',last_name) LIKE ?
+            OR CONCAT(first_name,' ',last_name) LIKE ?)
          ORDER BY last_name, first_name
          LIMIT 20"
     );

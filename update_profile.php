@@ -2,9 +2,13 @@
 // update_profile.php
 ini_set('display_errors', 0);
 error_reporting(0);
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.use_only_cookies', 1);
+}
 ob_start();
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id'])) {
     ob_end_clean();

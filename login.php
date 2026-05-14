@@ -1,137 +1,94 @@
 <?php
-// login.php
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(0);
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 ob_start();
-header('Content-Type: application/json; charset=utf-8');
+session_start();
+header('Content-Type: application/json');
+require_once 'config.php';
 
-try {
-    session_start();
-
-    $DB_HOST = 'localhost';
-    $DB_NAME = 'sit_in_monitoring';
-    $DB_USER = 'root';
-    $DB_PASS = '';
-
-    // Already logged in
-    if (!empty($_SESSION['user_id'])) {
-        $role = $_SESSION['user']['role'] ?? 'student';
-        ob_end_clean();
-        echo json_encode([
-            'success'  => true,
-            'role'     => $role,
-            'redirect' => $role === 'admin' ? 'admin_dashboard.php' : 'dashboard.php',
-        ]);
-        exit();
-    }
-
-    // Read JSON body
-    $raw  = file_get_contents('php://input');
-    $body = json_decode($raw, true);
-    if (empty($body)) $body = $_POST;
-
-    $id_number = trim($body['id_number'] ?? '');
-    $password  = trim($body['password']  ?? '');
-
-    if ($id_number === '' || $password === '') {
-        ob_end_clean();
-        echo json_encode(['success' => false,
-            'message' => 'Please enter your ID number and password.']);
-        exit();
-    }
-
-    // Connect
-    $conn = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-    if ($conn->connect_errno) {
-        ob_end_clean();
-        echo json_encode(['success' => false,
-            'message' => 'DB error: ' . $conn->connect_error]);
-        exit();
-    }
-    $conn->set_charset('utf8mb4');
-
-    $user = null;
-    $role = 'student';
-
-    // ── STEP 1: Check users table ──────────────────────────────
-    $stmt = $conn->prepare("SELECT * FROM `users` WHERE `id_number` = ? LIMIT 1");
-    $stmt->bind_param('s', $id_number);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($user) {
-        // Check if users table has a 'role' column
-        $rc = $conn->query("SHOW COLUMNS FROM `users` LIKE 'role'");
-        if ($rc && $rc->num_rows > 0) {
-            // Use the role column directly
-            $role = ($user['role'] ?? 'student') === 'admin' ? 'admin' : 'student';
-        } else {
-            // No role column — everyone in users table is a student by default
-            $role = 'student';
-        }
-    }
-
-    // ── STEP 2: If not found in users, check admins table ──────
-    if (!$user) {
-        $admin_tbl = $conn->query("SHOW TABLES LIKE 'admins'");
-        if ($admin_tbl && $admin_tbl->num_rows > 0) {
-            // Detect which column is the login identifier
-            $id_col = 'username'; // default for admins table
-            foreach (['id_number', 'username', 'email'] as $try) {
-                $cc = $conn->query("SHOW COLUMNS FROM `admins` LIKE '$try'");
-                if ($cc && $cc->num_rows > 0) { $id_col = $try; break; }
-            }
-            $stmt2 = $conn->prepare(
-                "SELECT * FROM `admins` WHERE `$id_col` = ? LIMIT 1"
-            );
-            $stmt2->bind_param('s', $id_number);
-            $stmt2->execute();
-            $user = $stmt2->get_result()->fetch_assoc();
-            $stmt2->close();
-            if ($user) $role = 'admin';
-        }
-    }
-
-    $conn->close();
-
-    if (!$user) {
-        ob_end_clean();
-        echo json_encode(['success' => false,
-            'message' => 'No account found with that ID number.']);
-        exit();
-    }
-
-    // ── Verify password ────────────────────────────────────────
-    $db_pw    = $user['password'] ?? '';
-    $verified = password_verify($password, $db_pw)
-             || ($password === $db_pw);
-
-    if (!$verified) {
-        ob_end_clean();
-        echo json_encode(['success' => false,
-            'message' => 'Incorrect password. Please try again.']);
-        exit();
-    }
-
-    // ── Set session ────────────────────────────────────────────
-    $_SESSION['user_id']      = $user['id'];
-    $_SESSION['user']         = $user;
-    $_SESSION['user']['role'] = $role;
-
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ob_end_clean();
-    echo json_encode([
-        'success'  => true,
-        'role'     => $role,
-        'redirect' => $role === 'admin' ? 'admin_dashboard.php' : 'dashboard.php',
-    ]);
-
-} catch (Throwable $e) {
-    ob_end_clean();
-    http_response_code(200);
-    echo json_encode([
-        'success' => false,
-        'message' => 'PHP error: ' . $e->getMessage() . ' (line ' . $e->getLine() . ')',
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+    exit;
 }
+
+$idNumber = trim($_POST['idNumber'] ?? '');
+$password = $_POST['password']      ?? '';
+
+if (!$idNumber || !$password) {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'Please fill in all fields.']);
+    exit;
+}
+
+$stmt = $pdo->prepare(
+    "SELECT id, id_number, first_name, last_name, middle_name,
+            email, address, course, year_level,
+            sessions_left, profile_pic, `password`, role
+     FROM users
+     WHERE id_number = ?
+     LIMIT 1"
+);
+$stmt->execute([$idNumber]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'ID Number not found.']);
+    exit;
+}
+
+if (!password_verify($password, $user['password'])) {
+    ob_end_clean();
+    echo json_encode(['success' => false, 'message' => 'Incorrect password.']);
+    exit;
+}
+
+$_SESSION['user_id']       = $user['id'];
+$_SESSION['id_number']     = $user['id_number'];
+$_SESSION['first_name']    = $user['first_name'];
+$_SESSION['last_name']     = $user['last_name'];
+$_SESSION['middle_name']   = $user['middle_name'] ?? '';
+$_SESSION['email']         = $user['email'];
+$_SESSION['address']       = $user['address']     ?? '';
+$_SESSION['course']        = $user['course'];
+$_SESSION['year_level']    = $user['year_level'];
+$_SESSION['sessions_left'] = $user['sessions_left'];
+$_SESSION['profile_pic']   = $user['profile_pic'] ?? '';
+$_SESSION['role']          = $user['role'] ?? 'student';
+$_SESSION['just_logged_in'] = true;  // Flag to show login success modal only once
+
+// Check if user had a sit-in session that ended recently (within last 5 minutes due to logout)
+try {
+    $recentSessionStmt = $pdo->prepare(
+        "SELECT s.id, l.lab_name, DATE(s.time_out) as date, TIME(s.time_out) as time
+         FROM sit_in_sessions s
+         LEFT JOIN labs l ON l.id = s.lab_id
+         WHERE s.user_id = ? AND s.status = 'completed' 
+         AND s.time_out >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+         ORDER BY s.time_out DESC LIMIT 1"
+    );
+    $recentSessionStmt->execute([$user['id']]);
+    $recentSession = $recentSessionStmt->fetch();
+
+    if ($recentSession) {
+        // Create notification about the session ending due to logout
+        $message = sprintf(
+            'Your sit-in session in %s ended due to logout on %s at %s.',
+            $recentSession['lab_name'] ?: 'Unknown Lab',
+            $recentSession['date'],
+            substr($recentSession['time'], 0, 5)
+        );
+        $notifStmt = $pdo->prepare(
+            'INSERT INTO notifications (user_id, type, message, is_read, created_at)
+             VALUES (?, ?, ?, 0, NOW())'
+        );
+        $notifStmt->execute([$user['id'], 'warning', $message]);
+    }
+} catch (Exception $e) {
+    // Continue with login even if notification creation fails
+}
+
+ob_end_clean();
+echo json_encode(['success' => true, 'message' => 'Login successful.', 'role' => $user['role'] ?? 'student']);
+?>

@@ -17,18 +17,18 @@ try {
     $conn = db_connect();
 
     // Total registered students
-    $r1 = $conn->query("SELECT COUNT(*) AS cnt FROM `users`");
+    $r1 = $conn->query("SELECT COUNT(*) AS cnt FROM `users` WHERE role = 'student'");
     $registered = $r1 ? (int)$r1->fetch_assoc()['cnt'] : 0;
 
-    // Current / total sit-ins (check if sit_in table exists)
+    // Current / total sit-ins (check if sit_in_sessions table exists)
     $current = 0; $total = 0; $purposes = [];
-    $tc = $conn->query("SHOW TABLES LIKE 'sit_ins'");
+    $tc = $conn->query("SHOW TABLES LIKE 'sit_in_sessions'");
     if ($tc && $tc->num_rows > 0) {
-        $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `sit_ins` WHERE status='Active'");
+        $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `sit_in_sessions` WHERE status='active'");
         if ($r2) $current = (int)$r2->fetch_assoc()['cnt'];
-        $r3 = $conn->query("SELECT COUNT(*) AS cnt FROM `sit_ins`");
+        $r3 = $conn->query("SELECT COUNT(*) AS cnt FROM `sit_in_sessions`");
         if ($r3) $total = (int)$r3->fetch_assoc()['cnt'];
-        $r4 = $conn->query("SELECT purpose, COUNT(*) AS cnt FROM `sit_ins` GROUP BY purpose");
+        $r4 = $conn->query("SELECT purpose, COUNT(*) AS cnt FROM `sit_in_sessions` GROUP BY purpose");
         if ($r4) {
             while ($row = $r4->fetch_assoc()) {
                 $purposes[$row['purpose']] = (int)$row['cnt'];

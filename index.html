@@ -6,14 +6,15 @@
   <title>CCS: Sit-In Monitoring System</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="style.css">
+  
 </head>
 <body class="login-page">
-
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg navbar-dark px-4">
-    <a class="navbar-brand fw-semibold d-flex align-items-center" href="index.html" style="font-size:.9rem; text-decoration: none;">
-      <img src='img\CCS.png' alt='CCS' class="nav-logo me-2" onerror="this.src='img\CCS.png'; this.onerror=null;"/>
+    <a class="navbar-brand fw-semibold d-flex align-items-center" href="#/home" style="font-size:.9rem; text-decoration: none;">
+      <img src='img/CCS.png' alt='CCS' class="nav-logo me-2" onerror="this.src='img/CCS.png'; this.onerror=null;"/>
       College of Computer Studies Sit-in Monitoring System
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -23,77 +24,333 @@
       <ul class="navbar-nav ms-auto gap-1">
         <li class="nav-item"><a class="nav-link" href="#/home">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="#/community">Community ▾</a></li>
-        <li class="nav-item"><a class="nav-link" href="#/about">About</a></li>
-        <li class="nav-item"><a class="nav-link active" href="index.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="openAboutModal(); return false;">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#/login">Login</a></li>
         <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
       </ul>
     </div>
   </nav>
 
   <!-- MAIN CONTENT -->
-  <main>
-    <div class="login-card">
+  <main id="main-content">
+    <!-- HOME PAGE -->
+    <div id="home-page" class="page-section" style="display: none;">
+      <div class="home-container">
+        <div class="home-header">
+          <h1 class="home-title">College of Computer Studies: Sit-in Monitoring System</h1>
+          <p class="home-subtitle">Welcome to the CCS Sit-in Monitoring System of the University of Cebu - Main Campus!</p>
+        </div>
 
-      <!-- Logo -->
+        <div class="home-content">
+          <div class="content-intro">
+            <p class="intro-text">
+              This system is designed to provide students with a convenient and efficient way to manage laboratory sit-in sessions, monitor computer availability, and stay updated with laboratory announcements.
+            </p>
+            <p class="intro-text">
+              Located at the 5th Floor of the CCS Department, the system helps students easily access laboratory services anytime through its 24/7 online platform.
+            </p>
+          </div>
+
+          <div class="features-section">
+            <h2 class="features-title">Key Features</h2>
+            
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h3 class="feature-name">Reservation and Sit-in Recording</h3>
+                <p class="feature-description">
+                  Students can request and reserve laboratory sit-in sessions online. Administrators will review and record each student's sit-in time to ensure proper monitoring and management of laboratory usage.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <h3 class="feature-name">Laboratory Announcements</h3>
+                <p class="feature-description">
+                  Stay informed with the latest announcements regarding laboratory schedules, temporary closures, maintenance updates, and unavailable or broken computers. This helps students plan their laboratory sessions more efficiently.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <h3 class="feature-name">Real-Time Laboratory and PC Availability</h3>
+                <p class="feature-description">
+                  The system allows users to view available laboratories and monitor open computer slots in real time. Each laboratory contains up to 40 computer slots, making it easier for students to find available workstations.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <h3 class="feature-name">24/7 Online Accessibility</h3>
+                <p class="feature-description">
+                  The Sit-in Monitoring System is accessible anytime and anywhere, providing students with continuous access to reservations, schedules, and laboratory information.
+                </p>
+              </div>
+
+              <div class="feature-card">
+                <h3 class="feature-name">Session Monitoring Per Semester</h3>
+                <p class="feature-description">
+                  Each student is provided with 30 sit-in sessions per semester. The system automatically tracks and monitors the remaining sessions to ensure fair and organized laboratory usage for all CCS students.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="purpose-section">
+            <h2 class="purpose-title">Purpose of the System</h2>
+            <p class="purpose-text">
+              The CCS Sit-in Monitoring System aims to improve laboratory management, enhance student convenience, and provide an organized way of monitoring computer laboratory usage within the College of Computer Studies.
+            </p>
+          </div>
+
+          <div class="cta-section">
+            <a href="#/login" class="btn-primary-cta">Get Started - Login</a>
+            <a href="register.html" class="btn-secondary-cta">Create New Account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMUNITY PAGE -->
+    <div id="community-page" class="page-section" style="display: none;">
+      <div class="community-container">
+        <div class="community-header">
+          <h1 class="community-title">Community</h1>
+          <p class="community-subtitle">Connect, Share, and Grow Together</p>
+        </div>
+
+        <div class="community-content">
+          <div class="community-grid">
+            <!-- PSITS Card -->
+            <div class="community-card">
+              <div class="community-card-icon">
+                <i class="fa-solid fa-people-group"></i>
+              </div>
+              <h3 class="community-card-title">Sit-in</h3>
+              <p class="community-card-description">Find a laboratory to sit in.</p>
+              <a href="#" class="community-card-link">
+                Start now  <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+
+            <!-- Evaluation/Reviews Card -->
+            <div class="community-card">
+              <div class="community-card-icon">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <h3 class="community-card-title">Evaluation/Reviews</h3>
+              <p class="community-card-description">Share your experience in us.</p>
+              <a href="#" class="community-card-link">
+                Log In First <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+
+            <!-- Laboratory Events Card -->
+            <div class="community-card">
+              <div class="community-card-icon">
+                <i class="fa-solid fa-calendar"></i>
+              </div>
+              <h3 class="community-card-title">Laboratory Events</h3>
+              <p class="community-card-description">Hackathon (CCS Days)</p>
+              <a href="#" class="community-card-link">
+                Sign In to Know More <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+
+            <!-- Student Connect Card -->
+            <div class="community-card">
+              <div class="community-card-icon">
+                <i class="fa-solid fa-people-arrows"></i>
+              </div>
+              <h3 class="community-card-title">Student Connect</h3>
+              <p class="community-card-description">Make connection with kapwa CCS</p>
+              <a href="register.html" class="community-card-link">
+                Register <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="page-section">
+    <div class="login-card">
+      <!-- FIXED LOGO - NO FALLBACK BOX -->
       <div class="logo-side">
         <img src='img\CCS.png' style="width:260px;height:auto;display:block;"/>
       </div>
 
-      <!-- Form panel -->
+      <!-- Form -->
       <div class="form-panel d-flex flex-column justify-content-center p-5 col-12 col-md-7">
         <p class="text-muted mb-1" style="font-size:.85rem;">Hello, Student!</p>
         <h1 class="form-title mb-1">Log into your account</h1>
         <p class="text-muted mb-4" style="font-size:.88rem;">Enter your StudentID and Password to proceed</p>
 
-        <div class="form-side">
-          <!-- novalidate disables browser native popups so our JS handles all validation -->
-          <form id="login-form" novalidate>
+      <div class="form-side">
+        <form id="login-form">
+          <div class="field-group">
+            <input type="text" id="idNumber" name="idNumber" placeholder="Enter your ID number" required/>
+            <label for="idNumber">ID Number</label>
+          </div>
 
-            <!-- Error box (shown on failed login) -->
-            <div id="loginError" style="
-              display:none;
-              background:#fee2e2;
-              border:1px solid #fca5a5;
-              color:#991b1b;
-              border-radius:7px;
-              padding:.55rem .85rem;
-              font-size:.82rem;
-              font-weight:500;
-              margin-bottom:1rem;
-            "></div>
+          <div class="field-group">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required/>
+            <label for="password">Password</label>
+          </div>
 
-            <div class="field-group">
-              <input type="text" id="idNumber" name="idNumber" placeholder="Enter your ID number"/>
-              <label for="idNumber">ID Number</label>
-            </div>
+          <div class="row-options">
+            <label class="remember">
+              <input type="checkbox" id="rememberMe"/>
+              Remember me
+            </label>
+            <a href="#" class="forgot">Forgot password?</a>
+          </div>
 
-            <div class="field-group">
-              <input type="password" id="password" name="password" placeholder="Enter your password"/>
-              <label for="password">Password</label>
-            </div>
+          <button type="submit" class="btn-login">Login</button>
 
-            <div class="row-options">
-              <label class="remember">
-                <input type="checkbox" id="rememberMe"/>
-                Remember me
-              </label>
-              <a href="#" class="forgot">Forgot password?</a>
-            </div>
-
-            <button type="submit" class="btn-login">Login</button>
-
-            <p class="register-hint">
-              Don't have an account? <a href="register.html">Register</a>
-            </p>
-
+          <p class="register-hint">
+            Don't have an account? <a href="register.html">Register</a>
+          </p>
           </form>
-        </div><!-- /form-side -->
-      </div><!-- /form-panel -->
+      </div>
+    </div>
+    </div>
+    </div>
 
-    </div><!-- /login-card -->
+    <!-- ABOUT MODAL -->
+    <div id="aboutModal" class="about-modal-overlay" style="display: none;">
+      <div class="about-modal">
+        <div class="about-modal-header">
+          <div class="about-modal-header-content">
+            <i class="fa-solid fa-circle-info"></i>
+            <h2 class="about-modal-title">About The System</h2>
+          </div>
+          <button class="about-modal-close" onclick="closeAboutModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="about-modal-body">
+          <!-- Our Purpose -->
+          <div class="about-section">
+            <div class="about-section-icon">
+              <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <div class="about-section-content">
+              <h3 class="about-section-title">Our Purpose</h3>
+              <p class="about-section-text">
+                The purpose of the CCS Sit-in Monitoring System is to simplify the administration of student sit-in sessions in the labs of the College of Computer Studies. It ensures transparent and effective laboratory utilization monitoring by replacing manual logbook tracking with a quick, digital solution that benefits administrators and students alike.
+              </p>
+            </div>
+          </div>
+
+          <!-- Laboratory Coverage -->
+          <div class="about-section">
+            <div class="about-section-icon">
+              <i class="fa-solid fa-laptop"></i>
+            </div>
+            <div class="about-section-content">
+              <h3 class="about-section-title">Laboratory Coverage</h3>
+              <p class="about-section-text">
+                The system covers six CCS computer laboratories — <strong>Lab 524, Lab 525, Lab 528, Lab 530, Lab 542 and Lab MAC</strong>. Each laboratory has 40 PCs that students can view and reserve in real time through the student dashboard.
+              </p>
+            </div>
+          </div>
+
+          <!-- For Students -->
+          <div class="about-section">
+            <div class="about-section-icon">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="about-section-content">
+              <h3 class="about-section-title">For Students</h3>
+              <p class="about-section-text">
+                Students can reserve a computer, keep track of their sit-in history, see the leaderboard, check the number of sessions left (30 each semester), and get points for finishing sessions. After a single registration, all functions are available, making laboratory reservations easy.
+              </p>
+            </div>
+          </div>
+
+          <!-- For Administrators -->
+          <div class="about-section">
+            <div class="about-section-icon">
+              <i class="fa-solid fa-gears"></i>
+            </div>
+            <div class="about-section-content">
+              <h3 class="about-section-title">For Administrators</h3>
+              <p class="about-section-text">
+               From a safe, feature-rich admin interface, CCS lab administrators can log students in and out, see real-time sit-in activity, manage student data, create reports, publish announcements, award points, and track feedback.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    // Page routing logic
+    function handleNavigation() {
+      const hash = window.location.hash.slice(1) || '/home'; // Remove '#' and default to home
+      const page = hash.split('/')[1] || 'home';
+      
+      // Hide all pages
+      document.querySelectorAll('.page-section').forEach(el => el.style.display = 'none');
+      
+      // Show the appropriate page
+      const pageElement = document.getElementById(page + '-page');
+      if (pageElement) {
+        pageElement.style.display = 'block';
+        // Update navbar active state
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+        const activeLink = document.querySelector(`a[href="#/${page}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    }
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', handleNavigation);
+    
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+      handleNavigation();
+    });
+
+    // About Modal Functions
+    function openAboutModal() {
+      const modal = document.getElementById('aboutModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeAboutModal() {
+      const modal = document.getElementById('aboutModal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Close modal when clicking on overlay
+    document.addEventListener('DOMContentLoaded', function() {
+      const modalOverlay = document.getElementById('aboutModal');
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(event) {
+          if (event.target === modalOverlay) {
+            closeAboutModal();
+          }
+        });
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAboutModal();
+      }
+    });
+  </script>
 </body>
 </html>

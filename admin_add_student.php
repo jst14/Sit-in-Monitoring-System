@@ -6,7 +6,7 @@ ob_start();
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['user']['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     ob_end_clean();
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit();
@@ -48,7 +48,7 @@ try {
 
     $hashed = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $conn->prepare(
-        "INSERT INTO `users` (id_number, first_name, last_name, middle_name, course, year_level, email, password, role, remaining_sessions)
+        "INSERT INTO `users` (id_number, first_name, last_name, middle_name, course, year_level, email, password, role, sessions_left)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'student', 30)"
     );
     $stmt->bind_param('ssssssss', $id_number, $first_name, $last_name, $middle_name, $course, $year_level, $email, $hashed);
