@@ -49,6 +49,7 @@
 
   /* Gradients */
   --grad-navbar:   linear-gradient(135deg, #190428 0%, #3d0e8a 50%, #6500c9 100%);
+  --grad-hder: linear-gradient(135deg, #4c4c06 5%, #ffff22 100%);
   --grad-header:   linear-gradient(135deg, #190428 0%, #8902ff 100%);
   --grad-session:  linear-gradient(135deg, #190428 0%, #571a90 100%);
   --grad-btn:      linear-gradient(135deg, #2d0076, #7b00ff);
@@ -704,7 +705,7 @@ nav,
 
 /* Gradient card header */
 .card-header-register {
-  background: var(--grad-header);
+  background: var(--grad-hder);
   padding: 1.75rem 2.25rem;
   position: relative;
   overflow: hidden;
@@ -2008,7 +2009,7 @@ body.theme-dark .view-title {
 .home-header {
   text-align: center;
   margin-bottom: 60px;
-  background: var(--grad-header);
+  background: var(--grad-hder);
   padding: 50px 30px;
   border-radius: var(--radius);
   color: white;
@@ -2297,7 +2298,7 @@ body.theme-dark .purpose-section {
 .community-header {
   text-align: center;
   margin-bottom: 60px;
-  background: var(--grad-header);
+  background: var(--grad-hder);
   padding: 50px 30px;
   border-radius: var(--radius);
   color: white;
@@ -2539,7 +2540,7 @@ body.theme-dark .community-card-link:hover {
 }
 
 .about-modal-header {
-  background: var(--grad-header);
+  background: var(--grad-hder);
   color: white;
   padding: 30px;
   display: flex;

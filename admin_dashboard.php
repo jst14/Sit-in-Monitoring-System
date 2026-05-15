@@ -1481,6 +1481,142 @@ $admin = $_SESSION;
     }
 
     /* ════════════════════════════════════════════════════════
+       REST PLAYERS TABLE STYLING (Rank 4+)
+    ════════════════════════════════════════════════════════ */
+    .rest-players-section {
+      padding: 1.5rem;
+      background: var(--surface);
+    }
+    .rest-players-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .rest-table-head {
+      background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(217,0,255,0.08));
+      border-bottom: 2px solid var(--border);
+    }
+    .rest-table-head-cell {
+      padding: .85rem 1rem;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-align: left;
+      word-break: break-word;
+    }
+    .rest-table-head-cell:nth-child(1) { width: 5%; text-align: center; }
+    .rest-table-head-cell:nth-child(2) { width: 6%; text-align: center; }
+    .rest-table-head-cell:nth-child(3) { width: 20%; }
+    .rest-table-head-cell:nth-child(4) { width: 12%; text-align: center; }
+    .rest-table-head-cell:nth-child(5) { width: 25%; text-align: center; }
+    .rest-table-head-cell:nth-child(6) { width: 12%; text-align: center; }
+    .rest-table-head-cell:nth-child(7) { width: 12%; text-align: center; }
+    .rest-table-cell {
+      padding: 1rem;
+      font-size: .82rem;
+      color: var(--text1);
+      text-align: left;
+      vertical-align: middle;
+      word-break: break-word;
+    }
+    .rest-table-cell:nth-child(1) { width: 5%; text-align: center; }
+    .rest-table-cell:nth-child(2) { width: 6%; text-align: center; }
+    .rest-table-cell:nth-child(3) { width: 20%; }
+    .rest-table-cell:nth-child(4) { width: 12%; text-align: center; }
+    .rest-table-cell:nth-child(5) { width: 25%; text-align: center; }
+    .rest-table-cell:nth-child(6) { width: 12%; text-align: center; }
+    .rest-table-cell:nth-child(7) { width: 12%; text-align: center; }
+    .rest-table-row {
+      border-bottom: 1px solid var(--border);
+      transition: background-color .2s ease;
+    }
+    .rest-table-row:hover {
+      background: rgba(0, 212, 255, 0.04);
+    }
+    .rest-table-row:last-child {
+      border-bottom: none;
+    }
+    .rest-table-cell-center {
+      text-align: center;
+    }
+    .rest-table-rank {
+      font-weight: 800;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+    .rest-table-rank.rank-4,
+    .rest-table-rank.rank-5,
+    .rest-table-rank.rank-6 {
+      color: var(--text2);
+    }
+    .rest-table-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border2);
+    }
+    .rest-table-avatar-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2d1d3a, #1a0d2d);
+      border: 1.5px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin: 0 auto;
+    }
+    .rest-table-player-info {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+      min-width: 0;
+    }
+    .rest-table-player-name {
+      font-weight: 600;
+      color: var(--text1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: .85rem;
+    }
+    .rest-table-player-meta {
+      font-size: .72rem;
+      color: var(--text3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rest-table-stat {
+      font-weight: 600;
+      color: var(--text1);
+      font-size: .85rem;
+    }
+    .rest-table-stat.points {
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+    }
+    .empty-rest-players {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text2);
+      font-size: .85rem;
+    }
+
+    /* ════════════════════════════════════════════════════════
        TOAST
     ════════════════════════════════════════════════════════ */
     #adminToast {
@@ -1727,14 +1863,14 @@ $admin = $_SESSION;
           <div class="page-header-left">
             <div class="page-header-icon"><i class="fa-solid fa-trophy"></i></div>
             <div>
-              <div class="page-header-title">Top Performers Leaderboard</div>
+              <div class="page-header-title">Top Sitters Leaderboard</div>
               <div class="page-header-sub">Students ranked by sit-in sessions (10 points per session)</div>
             </div>
           </div>
         </div>
         <div class="leaderboard-card">
           <div class="leaderboard-header">
-            <i class="fa-solid fa-trophy"></i> Top Performers
+            <i class="fa-solid fa-trophy"></i> Top Sitters
           </div>
           <div class="leaderboard-body" id="leaderboardBody">
             <!-- Leaderboard items will be loaded here -->
@@ -3544,43 +3680,70 @@ function renderLeaderboard(leaderboard) {
     </div>
   `;
 
-  const restHtml = restPlayers.length ? restPlayers.map(player => {
-    const trophyEmoji = player.trophy === 'gold' ? '🥇' : player.trophy === 'silver' ? '🥈' : player.trophy === 'bronze' ? '🥉' : '';
-    const initials = player.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    const profilePic = player.profile_pic && player.profile_pic.trim() 
-      ? player.profile_pic + '?v=' + Math.random() 
-      : '';
-    const courseDisplay = player.course ? player.course.toUpperCase() : 'N/A';
-    const yearDisplay = player.year_level ? `Year ${player.year_level}` : 'N/A';
-    const pointsColor = player.trophy === 'gold' ? '#FFD700' : player.trophy === 'silver' ? '#C0C0C0' : player.trophy === 'bronze' ? '#CD7F32' : 'var(--text1)';
+  // Render rest players (4th onwards) as a professional table
+  const restTableHtml = `
+    <div class="rest-players-section">
+      ${restPlayers.length > 0 ? `
+        <table class="rest-players-table">
+          <thead class="rest-table-head">
+            <tr>
+              <th class="rest-table-head-cell">Rank</th>
+              <th class="rest-table-head-cell"></th>
+              <th class="rest-table-head-cell">Name</th>
+              <th class="rest-table-head-cell">ID No.</th>
+              <th class="rest-table-head-cell">Course & Year</th>
+              <th class="rest-table-head-cell">Sessions</th>
+              <th class="rest-table-head-cell">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${restPlayers.map(player => {
+              const initials = player.name.split(' ').map(n => n[0]).join('').toUpperCase();
+              const profilePic = player.profile_pic && player.profile_pic.trim() 
+                ? player.profile_pic + '?v=' + Math.random() 
+                : '';
+              const courseDisplay = player.course ? player.course.toUpperCase() : 'N/A';
+              const yearDisplay = player.year_level ? player.year_level : 'N/A';
+              return `
+                <tr class="rest-table-row">
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-rank rank-${player.rank}">#${player.rank}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(player.name)}" class="rest-table-avatar" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'rest-table-avatar-placeholder', textContent: '${initials}'}))"/>` : `<div class="rest-table-avatar-placeholder">${initials}</div>`}
+                  </td>
+                  <td class="rest-table-cell">
+                    <div class="rest-table-player-info">
+                      <div class="rest-table-player-name">${escapeHtml(player.name)}</div>
+                    </div>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${escapeHtml(player.id_number)}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${courseDisplay} • Year ${yearDisplay}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${player.sit_in_count}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat points">${player.points}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      ` : `
+        <div class="empty-rest-players">
+          <i class="fa-solid fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+          <p>No additional leaderboard entries.</p>
+        </div>
+      `}
+    </div>
+  `;
 
-    return `
-      <div class="leaderboard-item">
-        <div class="leaderboard-rank ${player.rank <= 3 ? `top-${player.rank}` : ''}">
-          #${player.rank}
-        </div>
-        ${trophyEmoji ? `<div class="leaderboard-trophy">${trophyEmoji}</div>` : '<div style="width:32px;"></div>'}
-        ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(player.name)}" class="leaderboard-pic" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231a151c%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%234d9fff%22%3E${escapeHtml(initials)}%3C/text%3E%3C/svg%3E'"/>` : `<div class="leaderboard-avatar">${initials}</div>`}
-        <div class="leaderboard-info" style="flex:1;">
-          <div class="leaderboard-name">${escapeHtml(player.name)}</div>
-          <div class="leaderboard-id">${escapeHtml(player.id_number)}</div>
-          <div class="leaderboard-course">${courseDisplay} • ${yearDisplay}</div>
-        </div>
-        <div class="leaderboard-stats">
-          <div class="leaderboard-stat">
-            <div class="leaderboard-stat-label">Sessions</div>
-            <div class="leaderboard-stat-value">${player.sit_in_count}</div>
-          </div>
-          <div class="leaderboard-stat">
-            <div class="leaderboard-stat-label">Points</div>
-            <div class="leaderboard-stat-value" style="color: ${pointsColor};">${player.points}</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('') : '<div class="empty-state" style="padding: 1.5rem 1rem;">No additional leaderboard entries.</div>';
-
-  container.innerHTML = podiumHtml + `<div class="leaderboard-rest">${restHtml}</div>`;
+  container.innerHTML = podiumHtml + restTableHtml;
   renderRewardTable(leaderboard);
 }
 
