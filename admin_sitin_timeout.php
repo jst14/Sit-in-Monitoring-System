@@ -60,6 +60,12 @@ try {
             $updateUser->bind_param('i', $user_id);
             $updateUser->execute();
             $updateUser->close();
+
+            // Award points (10 points per completed session)
+            $pointsStmt = $conn->prepare("UPDATE users SET points = COALESCE(points, 0) + 10 WHERE id = ?");
+            $pointsStmt->bind_param('i', $user_id);
+            $pointsStmt->execute();
+            $pointsStmt->close();
         }
     } else {
         $affected = 0;

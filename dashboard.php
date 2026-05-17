@@ -264,6 +264,14 @@ $avatarSrc = (!empty($savedPic) && file_exists($savedPic))
           </div>
         </div>
 
+        <!-- Leaderboard (if enabled by admin) -->
+        <div class="ccs-card" id="leaderboardCard" style="display: none;">
+          <div class="ccs-card-header"><i class="fa-solid fa-trophy"></i> Top Sit-in Students Leaderboard</div>
+          <div class="leaderboard-container" id="leaderboardContainer">
+            <!-- Leaderboard will be loaded here -->
+          </div>
+        </div>
+
         <!-- Recent Session Details -->
         <div class="ccs-card">
           <div class="ccs-card-header"><i class="fa-solid fa-table-list"></i> Session Details</div>

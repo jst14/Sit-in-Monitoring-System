@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 07:26 PM
+-- Generation Time: May 17, 2026 at 06:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,27 @@ SET time_zone = "+00:00";
 --
 -- Database: `sit_in_monitoring`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin_settings`
+--
+
+CREATE TABLE `admin_settings` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `setting_name` varchar(100) NOT NULL,
+  `setting_value` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `admin_settings`
+--
+
+INSERT INTO `admin_settings` (`id`, `setting_name`, `setting_value`, `created_at`, `updated_at`) VALUES
+(1, 'leaderboard_enabled', 'true', '2026-05-17 11:00:27', '2026-05-17 16:16:34');
 
 -- --------------------------------------------------------
 
@@ -110,7 +131,13 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `is_read`, `cre
 (16, 3, 'success', 'Your reservation for Lab 542 on 2026-05-16 at 01:06 has been approved.', 0, '2026-05-15 17:06:50'),
 (17, 3, 'success', 'Your feedback has been recorded and will be read by the admin.', 0, '2026-05-15 17:13:58'),
 (18, 3, 'success', 'Your feedback has been recorded and will be read by the admin.', 0, '2026-05-15 17:14:56'),
-(19, 5, 'success', 'Your feedback has been recorded and will be read by the admin.', 0, '2026-05-15 17:17:41');
+(19, 5, 'success', 'Your feedback has been recorded and will be read by the admin.', 0, '2026-05-15 17:17:41'),
+(20, 6, 'info', 'Your reservation request has been submitted and is pending approval.', 0, '2026-05-17 11:20:21'),
+(21, 6, 'success', 'Your reservation for MAC on 2026-05-17 at 19:20 has been approved.', 0, '2026-05-17 11:20:53'),
+(22, 5, 'info', 'Your reservation request has been submitted and is pending approval.', 0, '2026-05-17 16:20:04'),
+(23, 5, 'success', 'Your reservation for Lab 526 on 2026-05-18 at 00:20 has been approved.', 0, '2026-05-17 16:20:28'),
+(24, 5, 'warning', 'Your sit-in session in Lab 526 ended due to logout on 2026-05-18 at 00:21.', 0, '2026-05-17 16:21:19'),
+(25, 5, 'warning', 'Your sit-in session in Lab 526 ended due to logout on 2026-05-18 at 00:21.', 0, '2026-05-17 16:23:27');
 
 -- --------------------------------------------------------
 
@@ -144,7 +171,9 @@ INSERT INTO `reservations` (`id`, `user_id`, `lab_id`, `computer_number`, `reser
 (4, 3, 4, 14, '2026-04-14', '07:30:00', '08:30:00', 'PHP', 'approved', NULL, '2026-04-13 23:30:56', '2026-04-13 23:31:18'),
 (5, 6, 7, 16, '2026-04-30', '10:21:00', '11:21:00', 'JavaScript', 'approved', NULL, '2026-04-30 02:21:49', '2026-04-30 02:22:08'),
 (6, 6, 7, 12, '2026-05-04', '08:17:00', '09:17:00', 'C Programming', 'approved', NULL, '2026-05-04 00:17:02', '2026-05-04 00:17:19'),
-(7, 3, 7, 4, '2026-05-14', '09:25:50', '10:30:50', 'JavaScript', 'approved', NULL, '2026-05-15 17:06:34', '2026-05-15 17:11:54');
+(7, 3, 7, 4, '2026-05-14', '09:25:50', '10:30:50', 'JavaScript', 'approved', NULL, '2026-05-15 17:06:34', '2026-05-15 17:11:54'),
+(8, 6, 8, 16, '2026-05-15', '07:30:30', '08:10:40', 'ASP.NET', 'approved', NULL, '2026-05-17 11:20:21', '2026-05-17 11:32:51'),
+(9, 5, 4, 6, '2026-05-18', '09:20:00', '10:05:05', 'SQL/Database', 'approved', NULL, '2026-05-17 16:20:04', '2026-05-17 16:24:35');
 
 -- --------------------------------------------------------
 
@@ -193,7 +222,9 @@ INSERT INTO `sit_in_sessions` (`id`, `user_id`, `lab_id`, `computer_number`, `pu
 (4, 3, 4, 14, 'PHP', '2026-04-14 07:31:18', '2026-04-14 09:25:51', 'completed', 'satisfied', 'Thank you for approving my sit-in', '2026-05-16 01:13:58', '2026-04-13 23:31:18'),
 (5, 6, 7, 16, 'JavaScript', '2026-04-30 10:22:08', '2026-04-30 12:12:00', 'completed', NULL, NULL, NULL, '2026-04-30 02:22:08'),
 (6, 6, 7, 12, 'C Programming', '2026-05-04 08:17:19', '2026-05-04 09:10:46', 'completed', NULL, NULL, NULL, '2026-05-04 00:17:19'),
-(7, 3, 7, 4, 'JavaScript', '2026-05-14 09:25:50', '2026-05-14 10:30:50', 'completed', 'satisfied', 'Thank you so much, just an urgent to pass my work', '2026-05-16 01:14:56', '2026-05-15 17:06:50');
+(7, 3, 7, 4, 'JavaScript', '2026-05-14 09:25:50', '2026-05-14 10:30:50', 'completed', 'satisfied', 'Thank you so much, just an urgent to pass my work', '2026-05-16 01:14:56', '2026-05-15 17:06:50'),
+(8, 6, 8, 16, 'ASP.NET', '2026-05-15 07:30:30', '2026-05-15 08:10:40', 'completed', NULL, NULL, NULL, '2026-05-17 11:20:53'),
+(9, 5, 4, 6, 'SQL/Database', '2026-05-18 09:20:00', '2026-05-18 10:05:05', 'completed', NULL, NULL, NULL, '2026-05-17 16:20:28');
 
 -- --------------------------------------------------------
 
@@ -298,12 +329,19 @@ INSERT INTO `users` (`id`, `id_number`, `email`, `first_name`, `last_name`, `mid
 (2, 'admin', 'admin@example.com', 'Admin', 'User', '', 'Admin Address', 'Admin', 1, '$2a$12$yHqMqHGZQIF9dSqWEAkXpe2IidWx0lwVwYQrpoSec1NXksT149PdK', NULL, 29, 0, '2026-04-15 17:56:47', '2026-05-14 05:10:11', 'admin'),
 (3, '20041404', 'jstl200404@email.com', 'John Simon', 'Limosnero', 'T.', 'Cebu City', 'BSIT', 3, '$2y$10$7UmUxdD/muOmoZZdGpn8J.WncXzwh/kbLYaVVt74sD8LGn2QvgIdi', 'uploads/profile_3.jpg', 27, 20, '2026-05-14 02:20:47', '2026-05-15 17:08:20', 'student'),
 (4, '20200814', 'alfea@email.com', 'Alfea', 'Zulueta', '', 'Manila', 'BSCA', 1, '$2y$10$o3WZWeKvdFqFqiNZDSaA9OWsLZgacUQl9cilePGok1pBJjCrNURkW', NULL, 29, 0, '2026-05-14 02:28:04', '2026-03-18 01:50:26', 'student'),
-(5, '20180302', 'pedrocalungsod@email.com', 'Pedro', 'Calungsod', '', 'Cebu City', 'BSCS', 4, '$2y$10$jSvTdypTkBaIfMVx51N88e.nHYJsGztmWfNUvAeGvA8QgSqYCRIa.', 'uploads/profile_5.jpg', 29, 0, '2026-05-14 02:29:41', '2026-03-18 00:38:55', 'student'),
-(6, '20170606', 'lbj@email.com', 'Lebron', 'James', '', 'Akron', 'BSCRIM', 2, '$2y$10$F40DA2J04N/3d2K3nsi/PeEEUY8uOyoKdRC6DlYOO3IpvcVeg0oqm', 'uploads/profile_6.jpg', 28, 0, '2026-05-14 02:31:22', '2026-05-04 01:10:46', 'student');
+(5, '20180302', 'pedrocalungsod@email.com', 'Pedro', 'Calungsod', '', 'Cebu City', 'BSCS', 4, '$2y$10$jSvTdypTkBaIfMVx51N88e.nHYJsGztmWfNUvAeGvA8QgSqYCRIa.', 'uploads/profile_5.jpg', 28, 10, '2026-05-14 02:29:41', '2026-05-17 16:21:12', 'student'),
+(6, '20170606', 'lbj@email.com', 'Lebron', 'James', '', 'Akron', 'BSCRIM', 2, '$2y$10$F40DA2J04N/3d2K3nsi/PeEEUY8uOyoKdRC6DlYOO3IpvcVeg0oqm', 'uploads/profile_6.jpg', 27, 0, '2026-05-14 02:31:22', '2026-05-17 11:29:42', 'student');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admin_settings`
+--
+ALTER TABLE `admin_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `setting_name` (`setting_name`);
 
 --
 -- Indexes for table `announcements`
@@ -372,6 +410,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `admin_settings`
+--
+ALTER TABLE `admin_settings`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
@@ -387,13 +431,13 @@ ALTER TABLE `labs`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `reservation_disabled_dates`
@@ -405,7 +449,7 @@ ALTER TABLE `reservation_disabled_dates`
 -- AUTO_INCREMENT for table `sit_in_sessions`
 --
 ALTER TABLE `sit_in_sessions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `software`

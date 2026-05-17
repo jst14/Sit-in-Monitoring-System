@@ -1,20 +1,34 @@
 <?php
-// admin_leaderboard_fetch.php
+// user_leaderboard_fetch.php - Fetch leaderboard for user dashboard (if enabled)
 ini_set('display_errors', 0);
 error_reporting(0);
 ob_start();
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id'])) {
     ob_end_clean();
-    echo json_encode([]);
+    echo json_encode(['success' => false, 'leaderboard' => []]);
     exit();
 }
 
 try {
     require_once 'config.php';
     $conn = db_connect();
+
+    // Check if leaderboard is enabled
+    $stmt = $conn->prepare("SELECT setting_value FROM admin_settings WHERE setting_name = 'leaderboard_enabled'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$row || $row['setting_value'] !== 'true') {
+        ob_end_clean();
+        echo json_encode(['success' => false, 'leaderboard' => []]);
+        $conn->close();
+        exit();
+    }
 
     // Fetch leaderboard: students ranked by completed sit-ins only
     // Each completed sit-in = +10 points. Points only awarded after session is completed.
@@ -38,7 +52,7 @@ try {
          GROUP BY u.id, u.id_number, u.first_name, u.last_name, u.course, u.year_level, u.profile_pic, u.points
          HAVING sit_in_count > 0 OR COALESCE(u.points, 0) > 0
          ORDER BY points DESC
-         LIMIT 50"
+         LIMIT 10"
     );
 
     $stmt->execute();
@@ -53,11 +67,11 @@ try {
         $trophy = '';
         
         if ($rank === 1) {
-            $trophy = 'gold';
+            $trophy = '🥇';
         } elseif ($rank === 2) {
-            $trophy = 'silver';
+            $trophy = '🥈';
         } elseif ($rank === 3) {
-            $trophy = 'bronze';
+            $trophy = '🥉';
         }
         
         $leaderboard[] = array_merge($row, [
@@ -67,9 +81,10 @@ try {
     }
 
     ob_end_clean();
-    echo json_encode($leaderboard);
+    echo json_encode(['success' => true, 'leaderboard' => $leaderboard]);
 
 } catch (Throwable $e) {
     ob_end_clean();
-    echo json_encode([]);
+    echo json_encode(['success' => false, 'leaderboard' => []]);
 }
+?>

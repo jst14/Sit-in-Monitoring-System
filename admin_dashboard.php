@@ -1664,6 +1664,80 @@ $admin = $_SESSION;
       z-index: 499;
     }
     .sidebar-backdrop.show { display: block; }
+
+    /* ════════════════════════════════════════════════════════
+       TOGGLE SWITCH STYLING
+    ════════════════════════════════════════════════════════ */
+    .toggle-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .toggle-switch label {
+      margin: 0;
+      cursor: pointer;
+    }
+    .toggle-switch input[type="checkbox"] {
+      appearance: none;
+      width: 50px;
+      height: 28px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      position: relative;
+      transition: background-color .3s ease;
+      outline: none;
+    }
+    .toggle-switch input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--text1);
+      top: 2px;
+      left: 2px;
+      transition: left .3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-switch input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-color: var(--accent2);
+    }
+    .toggle-switch input[type="checkbox"]:checked::before {
+      left: 24px;
+    }
+    .toggle-switch input[type="checkbox"]:focus {
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+
+    /* Settings Card */
+    .settings-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem;
+      margin-bottom: 1.35rem;
+    }
+    .settings-card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text1);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .settings-card-title i {
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+    .settings-card-description {
+      font-size: 0.75rem;
+      color: var(--text3);
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -1734,6 +1808,11 @@ $admin = $_SESSION;
       <div class="nav-section-label">Lab Software</div>
       <a class="nav-item"        id="nav-software"    onclick="showView('software')">
         <i class="fa-solid fa-download"></i> Software Import/Upload
+      </a>
+
+      <div class="nav-section-label">System</div>
+      <a class="nav-item"        id="nav-settings"    onclick="showView('settings')">
+        <i class="fa-solid fa-gear"></i> Settings
       </a>
     </nav>
 
@@ -2530,6 +2609,42 @@ $admin = $_SESSION;
         </div>
       </div>
 
+      <!-- ████ SETTINGS ████ -->
+      <div class="view" id="view-settings">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-header-icon"><i class="fa-solid fa-gear"></i></div>
+            <div>
+              <div class="page-header-title">System Settings</div>
+              <div class="page-header-sub">Configure system features and options</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="settings-card">
+              <div class="settings-card-title">
+                <i class="fa-solid fa-trophy"></i> Leaderboard Visibility
+              </div>
+              <div class="settings-card-description">
+                Enable or disable the leaderboard display on the student dashboard home page.
+              </div>
+              <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                <label style="font-size: 0.82rem; color: var(--text1); font-weight: 500;">Show leaderboard to students</label>
+                <div class="toggle-switch">
+                  <input type="checkbox" id="leaderboardToggle" onchange="saveLeaderboardSetting()">
+                </div>
+              </div>
+              <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text3); padding: 0.75rem; background: var(--surface2); border-radius: 8px; border-left: 3px solid var(--accent);">
+                <i class="fa-solid fa-info-circle" style="margin-right: 0.4rem;"></i>
+                When enabled, the top sit-in students by points will be visible on the student dashboard.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /view-settings -->
+
     </div><!-- /content-wrap -->
   </main>
 </div><!-- /layout -->
@@ -2895,6 +3010,9 @@ function showView(name) {
     loadSoftwareLabs();
     loadSoftwareOverview();
     loadRegisteredSoftware();
+  }
+  if (name === 'settings') {
+    loadLeaderboardSettings();
   }
   if (name === 'leaderboard')   loadLeaderboard();
   if (name === 'home')          loadStats();
@@ -5059,6 +5177,69 @@ async function deleteSoftware(id) {
   } catch (err) {
     console.error('Delete error:', err);
     toast('Error deleting software', 'danger');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// LEADERBOARD SETTINGS FUNCTIONS
+// ════════════════════════════════════════════════════════════
+
+async function loadLeaderboardSettings() {
+  try {
+    const response = await fetch('admin_settings_toggle.php', {
+      method: 'GET'
+    });
+    const data = await response.json();
+    
+    if (data.success && data.settings) {
+      const toggle = document.getElementById('leaderboardToggle');
+      if (toggle) {
+        toggle.checked = data.settings.leaderboard_enabled === 'true';
+      }
+    }
+  } catch (err) {
+    console.error('Error loading leaderboard settings:', err);
+  }
+}
+
+async function saveLeaderboardSetting() {
+  const toggle = document.getElementById('leaderboardToggle');
+  const isEnabled = toggle ? toggle.checked : false;
+  
+  try {
+    // Save the setting
+    const response = await fetch('admin_settings_toggle.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        setting_name: 'leaderboard_enabled',
+        setting_value: isEnabled ? 'true' : 'false'
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Manage top 3 notifications
+      const notifyResponse = await fetch('manage_top3_notifications.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: isEnabled ? 'enable' : 'disable'
+        })
+      });
+
+      const notifyData = await notifyResponse.json();
+      toast(isEnabled ? 'Leaderboard enabled and top 3 notified.' : 'Leaderboard disabled and notifications removed.', 'success');
+    } else {
+      toast('Failed to save setting.', 'danger');
+      // Revert toggle on failure
+      if (toggle) toggle.checked = !isEnabled;
+    }
+  } catch (err) {
+    console.error('Error saving leaderboard setting:', err);
+    toast('Error saving setting.', 'danger');
+    if (toggle) toggle.checked = !isEnabled;
   }
 }
 </script>

@@ -1680,6 +1680,98 @@ async function postJSON(url, payload) {
     }
 }
 
+/* ── LEADERBOARD ── */
+async function loadLeaderboard() {
+    try {
+        const data = await postJSON('user_leaderboard_fetch.php', {});
+        
+        if (!data || !data.success) {
+            // Leaderboard is disabled, hide the card
+            const leaderboardCard = document.getElementById('leaderboardCard');
+            if (leaderboardCard) leaderboardCard.style.display = 'none';
+            return;
+        }
+
+        const leaderboard = data.leaderboard || [];
+        const leaderboardCard = document.getElementById('leaderboardCard');
+        const leaderboardContainer = document.getElementById('leaderboardContainer');
+
+        if (!leaderboardCard || !leaderboardContainer) {
+            return; // Elements not found
+        }
+
+        if (!leaderboard.length) {
+            leaderboardCard.style.display = 'none';
+            return;
+        }
+
+        // Show the leaderboard card
+        leaderboardCard.style.display = 'block';
+
+        // Render the leaderboard
+        renderLeaderboard(leaderboard, leaderboardContainer);
+    } catch (err) {
+        console.error('Error loading leaderboard:', err);
+    }
+}
+
+function renderLeaderboard(leaderboard, container) {
+    if (!leaderboard || leaderboard.length === 0) {
+        container.innerHTML = `
+            <div class="leaderboard-empty">
+                <i class="fa-solid fa-trophy"></i>
+                <p>No leaderboard data yet</p>
+            </div>`;
+        return;
+    }
+
+    // Define medals for top 3
+    const medals = {
+        1: '🥇',
+        2: '🥈',
+        3: '🥉'
+    };
+
+    // Render all leaderboard entries in horizontal list format
+    let html = '<div class="leaderboard-list">';
+    leaderboard.forEach((student, index) => {
+        const rank = index + 1;
+        const medal = medals[rank] ? `<span class="leaderboard-medal">${medals[rank]}</span>` : '';
+        
+        const avatarHtml = student.profile_pic && student.profile_pic !== 'null'
+            ? `<img src="${student.profile_pic}" alt="${student.name}" class="leaderboard-avatar-img">`
+            : `<div class="leaderboard-avatar-placeholder">${(student.first_name[0] + student.last_name[0]).toUpperCase()}</div>`;
+
+        html += `
+            <div class="leaderboard-item">
+                <div class="leaderboard-rank-num">#${rank}${medal}</div>
+                ${avatarHtml}
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">${student.name}</div>
+                    <div class="leaderboard-id">${student.id_number}</div>
+                    <div class="leaderboard-course">${student.course}</div>
+                </div>
+                <div class="leaderboard-stats">
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-label">Sessions</div>
+                        <div class="leaderboard-stat-value">${student.sit_in_count}</div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-label">Hours</div>
+                        <div class="leaderboard-stat-value">${student.total_hours}</div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-label">Points</div>
+                        <div class="leaderboard-stat-value leaderboard-points">${student.points}</div>
+                    </div>
+                </div>
+            </div>`;
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', async () => {
     refreshDisplay();
@@ -1693,12 +1785,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadMyReservations();
     loadNotifications();
     loadAnnouncements();
+    loadLeaderboard();
     loadLabStatus();
     loadAvailableSoftware();
     setInterval(loadNotifications, 20000);
     setInterval(loadHistoryData, 15000); // Refresh sit-in status every 15 seconds
     setInterval(loadLabStatus, 30000); // Refresh lab status every 30 seconds
     setInterval(loadAvailableSoftware, 60000); // Refresh software list every 60 seconds
+    setInterval(loadLeaderboard, 60000); // Refresh leaderboard every 60 seconds
 
     // Set reservation date to today
     const rDate = document.getElementById('rDate');
