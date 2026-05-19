@@ -302,7 +302,11 @@ async function loadLabStatus() {
                     let statusColor = 'var(--green)';
                     let statusBgColor = 'rgba(34, 197, 94, 0.1)';
                     
-                    if (occupancy > 80) {
+                    // If lab is disabled by admin, show as CLOSED (red) regardless of occupancy
+                    if (!lab.is_open) {
+                        statusColor = 'var(--red)';
+                        statusBgColor = 'rgba(239, 68, 68, 0.1)';
+                    } else if (occupancy > 80) {
                         statusColor = 'var(--red)';
                         statusBgColor = 'rgba(239, 68, 68, 0.1)';
                     } else if (occupancy > 50) {
@@ -310,7 +314,7 @@ async function loadLabStatus() {
                         statusBgColor = 'rgba(249, 115, 22, 0.1)';
                     }
                     
-                    const isOpen = lab.is_open || occupancy > 0; // Lab is considered "open" if has students
+                    const isOpen = lab.is_open; // Respect the is_open flag from backend (which checks disabled dates)
                     
                     return `
                         <div style="
@@ -390,14 +394,15 @@ async function loadLabStatus() {
                             
                             <!-- Available Count -->
                             <div style="
-                                background: rgba(100, 200, 100, 0.1);
+                                background: ${isOpen ? 'rgba(100, 200, 100, 0.1)' : 'rgba(239, 68, 68, 0.1)'};
                                 padding: 6px 8px;
                                 border-radius: 6px;
                                 font-size: 0.65rem;
-                                color: var(--text3);
+                                color: ${isOpen ? 'var(--text3)' : 'var(--red)'};
                                 text-align: center;
+                                font-weight: 600;
                             ">
-                                <i class="fa-solid fa-laptop"></i> ${lab.availability} available
+                                <i class="fa-solid ${isOpen ? 'fa-laptop' : 'fa-ban'}"></i> ${isOpen ? lab.availability + ' available' : 'UNAVAILABLE'}
                             </div>
                         </div>
                     `;

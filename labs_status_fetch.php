@@ -41,13 +41,42 @@ try {
     }
     
     if ($tableCheck->num_rows === 0) {
-        // Table doesn't exist, return default labs
-        $labs = [
-            ['id' => 3, 'name' => 'Lab 524', 'is_open' => true, 'active_students' => 0, 'max_capacity' => 40, 'availability' => 40],
-            ['id' => 4, 'name' => 'Lab 526', 'is_open' => true, 'active_students' => 0, 'max_capacity' => 40, 'availability' => 40],
-            ['id' => 5, 'name' => 'Lab 528', 'is_open' => true, 'active_students' => 0, 'max_capacity' => 40, 'availability' => 40],
-            ['id' => 6, 'name' => 'Lab 530', 'is_open' => true, 'active_students' => 0, 'max_capacity' => 40, 'availability' => 40],
+        // Table doesn't exist, return default labs with disabled date check
+        $today = date('Y-m-d');
+        $defaultLabs = [
+            ['id' => 3, 'name' => 'Lab 524'],
+            ['id' => 4, 'name' => 'Lab 526'],
+            ['id' => 5, 'name' => 'Lab 528'],
+            ['id' => 6, 'name' => 'Lab 530'],
         ];
+        
+        $labs = [];
+        foreach ($defaultLabs as $defaultLab) {
+            // Check if lab is disabled today
+            $disable_query = "SELECT id FROM reservation_disabled_dates WHERE lab_id = ? AND disabled_date = ?";
+            $disable_stmt = $conn->prepare($disable_query);
+            
+            if ($disable_stmt) {
+                $lab_id = $defaultLab['id'];
+                $disable_stmt->bind_param('is', $lab_id, $today);
+                $disable_stmt->execute();
+                $disable_result = $disable_stmt->get_result();
+                $is_open = $disable_result->num_rows > 0 ? 0 : 1;
+                $disable_stmt->close();
+            } else {
+                $is_open = 1;
+            }
+            
+            $labs[] = [
+                'id' => $defaultLab['id'],
+                'name' => $defaultLab['name'],
+                'is_open' => $is_open,
+                'active_students' => 0,
+                'max_capacity' => 40,
+                'availability' => 40
+            ];
+        }
+        
         ob_end_clean();
         echo json_encode(['success' => true, 'labs' => $labs]);
         $conn->close();
@@ -82,14 +111,32 @@ try {
         $active_students = intval($sit_data['active_count'] ?? 0);
         $sit_stmt->close();
 
+        // Check if lab is disabled today
+        $today = date('Y-m-d');
+        $disable_query = "SELECT id FROM reservation_disabled_dates WHERE lab_id = ? AND disabled_date = ?";
+        $disable_stmt = $conn->prepare($disable_query);
+        
+        if (!$disable_stmt) {
+            throw new Exception('Prepare error: ' . $conn->error);
+        }
+        
+        $disable_stmt->bind_param('is', $lab_id, $today);
+        $disable_stmt->execute();
+        $disable_result = $disable_stmt->get_result();
+        $is_disabled_today = $disable_result->num_rows > 0 ? 1 : 0;
+        $disable_stmt->close();
+
         // Default capacity and availability
         $max_capacity = 40;
         $availability = max(0, $max_capacity - $active_students);
+        
+        // Lab is open only if it's not disabled today
+        $is_open = $is_disabled_today ? 0 : 1;
 
         $labs[] = [
             'id' => $lab_id,
             'name' => $row['lab_name'],
-            'is_open' => 1,
+            'is_open' => $is_open,
             'active_students' => $active_students,
             'max_capacity' => $max_capacity,
             'availability' => $availability
