@@ -93,7 +93,33 @@ $stmt->execute($usedParams);
 $usedCount = (int) ($stmt->fetchColumn() ?: 0);
 
 $occupiedNumbers = [];
+$pendingNumbers = [];
+$unavailableNumbers = [];
 if ($labId) {
+    // Get unavailable computers marked by admin
+    $stmt = $pdo->prepare(
+        'SELECT DISTINCT computer_number
+         FROM unavailable_computers
+         WHERE lab_id = ?'
+    );
+    $stmt->execute([$labId]);
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row) {
+        $unavailableNumbers[] = (int) $row['computer_number'];
+    }
+    
+    // Get pending computers (reserved but not approved yet)
+    $stmt = $pdo->prepare(
+        'SELECT DISTINCT computer_number
+         FROM reservations
+         WHERE lab_id = ? AND status = ? AND computer_number IS NOT NULL'
+    );
+    $stmt->execute([$labId, 'pending']);
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row) {
+        $pendingNumbers[] = (int) $row['computer_number'];
+    }
+    
     // Get occupied computers from approved reservations for the selected date
     if ($date) {
         $stmt = $pdo->prepare(
@@ -122,6 +148,8 @@ if ($labId) {
     
     // Remove duplicates
     $occupiedNumbers = array_values(array_unique($occupiedNumbers));
+    $pendingNumbers = array_values(array_unique($pendingNumbers));
+    $unavailableNumbers = array_values(array_unique($unavailableNumbers));
 }
 
 $labName = '';
@@ -145,13 +173,15 @@ echo json_encode([
     'requests' => $pending,
     'logs'     => $logs,
     'stats'    => [
-        'lab_id'      => $labId,
-        'lab_name'    => $labName,
-        'used'        => $usedCount,
-        'available'   => $available,
-        'pending'     => count($pending),
-        'occupied'    => $occupiedNumbers,
-        'disabled'    => (bool) $disabledDate,
-        'disabled_reason' => $disabledDate,
+        'lab_id'             => $labId,
+        'lab_name'           => $labName,
+        'used'               => $usedCount,
+        'available'          => $available,
+        'pending'            => count($pending),
+        'occupied'           => $occupiedNumbers,
+        'pending_computers'  => $pendingNumbers,
+        'unavailable'        => $unavailableNumbers,
+        'disabled'           => (bool) $disabledDate,
+        'disabled_reason'    => $disabledDate,
     ]
 ]);

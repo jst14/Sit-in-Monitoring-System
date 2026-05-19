@@ -63,6 +63,20 @@ try {
         }
     }
 
+    // Check for unavailable computers (marked by admin)
+    $stmt = $pdo->prepare(
+        'SELECT computer_number
+         FROM unavailable_computers
+         WHERE lab_id = ?'
+    );
+    $stmt->execute([$labId]);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $cn = (int) $row['computer_number'];
+        if ($cn >= 1 && $cn <= 40) {
+            $computers[$cn] = 'unavailable';
+        }
+    }
+
     echo json_encode([
         'success' => true,
         'computers' => $computers

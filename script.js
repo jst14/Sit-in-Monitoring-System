@@ -86,7 +86,96 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    /* ── LOAD LEADERBOARD FOR HOME PAGE ── */
+    const leaderboardList = document.getElementById('leaderboard-list');
+    if (leaderboardList) {
+        loadHomePageLeaderboard();
+    }
 });
+
+/* ── LOAD HOME PAGE LEADERBOARD ── */
+async function loadHomePageLeaderboard() {
+    const leaderboardList = document.getElementById('leaderboard-list');
+    if (!leaderboardList) return;
+
+    try {
+        const response = await fetch('leaderboard_public_fetch.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({})
+        });
+
+        const data = await response.json();
+
+        if (!data.success || !data.leaderboard || data.leaderboard.length === 0) {
+            leaderboardList.innerHTML = `
+                <div class="leaderboard-empty">
+                    <i class="fa-solid fa-trophy"></i>
+                    <p>Leaderboard not available yet</p>
+                </div>
+            `;
+            return;
+        }
+
+        const leaderboard = data.leaderboard;
+        const medals = ['🥇', '🥈', '🥉'];
+        
+        leaderboardList.innerHTML = leaderboard.map((student, index) => {
+            const rank = index + 1;
+            const medal = medals[index] || '';
+            const rankClass = rank <= 3 ? `top-${rank}` : '';
+            const hasPic = student.profile_pic && student.profile_pic.trim() !== '';
+            const initials = (student.first_name.charAt(0) + student.last_name.charAt(0)).toUpperCase();
+            
+            return `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank-num ${rankClass}">
+                        ${medal || `<strong>#${rank}</strong>`}
+                    </div>
+                    <div class="leaderboard-avatar-wrapper">
+                        ${
+                            hasPic
+                                ? `<img src="uploads/${student.profile_pic}" alt="${student.name}" class="leaderboard-avatar-img" onerror="this.style.display='none'; this.parentElement.querySelector('.leaderboard-avatar-placeholder').style.display='flex';" />`
+                                : ''
+                        }
+                        <div class="leaderboard-avatar-placeholder" ${hasPic ? 'style="display:none;"' : ''}>
+                            ${initials}
+                        </div>
+                    </div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${student.name}</div>
+                        <div class="leaderboard-id">${student.id_number}</div>
+                        <div class="leaderboard-course">${student.course}</div>
+                    </div>
+                    <div class="leaderboard-stats">
+                        <div class="leaderboard-stat">
+                            <div class="leaderboard-stat-label">Sessions</div>
+                            <div class="leaderboard-stat-value">${student.sit_in_count}</div>
+                        </div>
+                        <div class="leaderboard-stat">
+                            <div class="leaderboard-stat-label">Hours</div>
+                            <div class="leaderboard-stat-value">${student.total_hours}</div>
+                        </div>
+                        <div class="leaderboard-stat">
+                            <div class="leaderboard-stat-label">Points</div>
+                            <div class="leaderboard-stat-value leaderboard-points">${student.points}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        leaderboardList.innerHTML = `
+            <div class="leaderboard-empty">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p>Failed to load leaderboard</p>
+            </div>
+        `;
+    }
+}
 
 
 /* ============================================================
@@ -423,21 +512,35 @@ function getSoftwareIcon(softwareName) {
     const iconMap = {
         'MS Office 365': { icon: 'fa-file-word', color: '#2D5AA2' },
         'Visual Studio Code': { icon: 'fa-code', color: '#0078D4' },
+        'Visual Studio': { icon: 'fa-code', color: '#9146FF' },
         'XAMPP': { icon: 'fa-server', color: '#FB7D1D' },
         'MySQL Workbench': { icon: 'fa-database', color: '#00758F' },
         'NetBeans IDE': { icon: 'fa-pen-nib', color: '#1B6AC6' },
         'IntelliJ IDEA': { icon: 'fa-bolt', color: '#F31B32' },
         'Android Studio': { icon: 'fa-mobile', color: '#3DDC84' },
-        'Python 3.x': { icon: 'fa-brands fa-python', color: '#3776AB' },
+        'Python': { icon: 'fa-brands fa-python', color: '#3776AB' },
         'Git': { icon: 'fa-code-branch', color: '#F1502F' },
         'Adobe Photoshop': { icon: 'fa-image', color: '#31A8FF' },
-        'Figma (Browser)': { icon: 'fa-paintbrush', color: '#F24E1E' },
+        'Figma': { icon: 'fa-paintbrush', color: '#F24E1E' },
         'Cisco Packet Tracer': { icon: 'fa-network-wired', color: '#1BA1E2' },
         'Oracle Virtual Box': { icon: 'fa-box', color: '#183153' },
-        'VMware Workstation': { icon: 'fa-microchip', color: '#607078' },
+        'VMware': { icon: 'fa-microchip', color: '#607078' },
         'Notepad++': { icon: 'fa-file-code', color: '#90E59B' }
     };
-    return iconMap[softwareName] || { icon: 'fa-cube', color: '#DB79FF' };
+    
+    // Try exact match first
+    if (iconMap[softwareName]) {
+        return iconMap[softwareName];
+    }
+    
+    // Try partial match
+    for (const [key, val] of Object.entries(iconMap)) {
+        if (softwareName.includes(key) || key.includes(softwareName)) {
+            return val;
+        }
+    }
+    
+    return { icon: 'fa-cube', color: '#DB79FF' };
 }
 
 async function loadAvailableSoftware() {
@@ -827,15 +930,21 @@ async function updateComputerStatus() {
 
             statusDiv.style.display = 'block';
             
-            if (status === 'occupied') {
+            if (status === 'unavailable') {
+                statusDiv.className = 'alert alert-secondary';
+                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> Computer ' + selectedComputer + ' is UNAVAILABLE';
+                statusDiv.style.backgroundColor = 'rgba(156, 163, 175, 0.12)';
+                statusDiv.style.borderColor = 'rgba(156, 163, 175, 0.3)';
+                statusDiv.style.color = '#d1d5db';
+            } else if (status === 'occupied') {
                 statusDiv.className = 'alert alert-danger';
-                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> Computer ' + selectedComputer + ' is currently occupied (Red)';
+                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> Computer ' + selectedComputer + ' is CURRENTLY OCCUPIED';
                 statusDiv.style.backgroundColor = 'rgba(255, 77, 106, 0.12)';
                 statusDiv.style.borderColor = 'rgba(255, 77, 106, 0.3)';
                 statusDiv.style.color = '#ffccd5';
             } else if (status === 'reserved') {
                 statusDiv.className = 'alert alert-warning';
-                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> Computer ' + selectedComputer + ' is reserved for this date';
+                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> Computer ' + selectedComputer + ' is RESERVED for this date';
                 statusDiv.style.backgroundColor = 'rgba(255, 179, 71, 0.12)';
                 statusDiv.style.borderColor = 'rgba(255, 179, 71, 0.3)';
                 statusDiv.style.color = '#ffe0b2';
@@ -881,6 +990,11 @@ async function submitReservation() {
     if (Object.keys(computerAvailability).length > 0) {
         const computerStatus = computerAvailability[selectedComputer] || 'available';
         
+        if (computerStatus === 'unavailable') {
+            showToast('Computer ' + selectedComputer + ' is unavailable (disabled by admin). Please pick a different PC.', 'fa-circle-xmark', '#ef4444');
+            return;
+        }
+        
         if (computerStatus === 'occupied') {
             showToast('Computer ' + selectedComputer + ' is occupied. Please pick a different PC.', 'fa-circle-xmark', '#ef4444');
             return;
@@ -904,6 +1018,11 @@ async function submitReservation() {
             if (availData.success) {
                 computerAvailability = availData.computers;
                 const computerStatus = computerAvailability[selectedComputer] || 'available';
+                
+                if (computerStatus === 'unavailable') {
+                    showToast('Computer ' + selectedComputer + ' is unavailable (disabled by admin). Please pick a different PC.', 'fa-circle-xmark', '#ef4444');
+                    return;
+                }
                 
                 if (computerStatus === 'occupied') {
                     showToast('Computer ' + selectedComputer + ' is occupied. Please pick a different PC.', 'fa-circle-xmark', '#ef4444');
@@ -1183,12 +1302,6 @@ function exportSummaryPDF() {
         return;
     }
 
-    const docWidth = 210; // A4 width in mm
-    const docHeight = 297; // A4 height in mm
-    let yPosition = 20;
-    const lineHeight = 7;
-    const margin = 15;
-
     // Get summary values with null checks
     const totalHoursEl = document.getElementById('totalHours');
     const totalSessionsEl = document.getElementById('totalSessions');
@@ -1200,32 +1313,150 @@ function exportSummaryPDF() {
     const avgDuration = avgDurationEl ? avgDurationEl.textContent : '0m';
     const longestSession = longestSessionEl ? longestSessionEl.textContent : '0m';
 
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
     let html = `
+    <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="UTF-8">
         <style>
-            body { font-family: Arial, sans-serif; color: #333; }
-            .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #4d9fff; padding-bottom: 10px; }
-            .header h1 { margin: 0; color: #1a5490; font-size: 24px; }
-            .header p { margin: 5px 0 0 0; color: #666; font-size: 12px; }
-            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-            .stat-box { border: 1px solid #ddd; padding: 10px; border-radius: 5px; text-align: center; }
-            .stat-value { font-size: 20px; font-weight: bold; color: #4d9fff; }
-            .stat-label { font-size: 11px; color: #666; margin-top: 5px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px; }
-            th { background-color: #1a5490; color: white; padding: 8px; text-align: left; font-weight: bold; }
-            td { padding: 6px; border-bottom: 1px solid #ddd; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+            @page {
+                size: A4;
+                margin: 0.5in;
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Calibri', 'Arial', sans-serif;
+                padding: 40px;
+                color: #1a1a1a;
+                line-height: 1.6;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+                -moz-print-color-adjust: exact;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 3px solid #003366;
+                padding-bottom: 20px;
+            }
+            .report-title {
+                font-size: 28px;
+                font-weight: bold;
+                color: #003366;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+            }
+            .report-subtitle {
+                font-size: 13px;
+                color: #555;
+                margin-bottom: 15px;
+            }
+            .report-info {
+                font-size: 12px;
+                color: #666;
+            }
+            .student-info-box {
+                background-color: #d1eeff;
+                border-left: 5px solid #1363b8;
+                padding: 15px;
+                margin-bottom: 25px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .student-name {
+                font-size: 16px;
+                font-weight: bold;
+                color: #1a1a1a;
+            }
+            .student-id {
+                font-size: 12px;
+                color: #666;
+            }
+            .stats-section {
+                display: flex;
+                justify-content: space-between;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+            .stat-box {
+                flex: 1;
+                border: 1px solid #ddd;
+                padding: 15px;
+                text-align: center;
+                border-radius: 4px;
+                background-color: #f9f9f9;
+            }
+            .stat-value {
+                font-size: 24px;
+                font-weight: bold;
+                color: #003366;
+                margin-bottom: 5px;
+            }
+            .stat-label {
+                font-size: 11px;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 12px;
+            }
+            th {
+                background-color: #003366 !important;
+                color: white !important;
+                padding: 12px 8px;
+                text-align: left;
+                font-weight: bold;
+                border: 1px solid #003366;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+                -moz-print-color-adjust: exact;
+            }
+            td {
+                padding: 10px 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 15px;
+                border-top: 1px solid #ccc;
+                text-align: center;
+                font-size: 10px;
+                color: #888;
+            }
+            @media print {
+                body { padding: 20px; }
+                table { font-size: 11px; }
+            }
         </style>
     </head>
     <body>
         <div class="header">
-            <h1>Sit-in Monitoring System</h1>
-            <p>My Summary Report - ${new Date().toLocaleDateString()}</p>
+            <div class="report-title">MY SIT-IN SUMMARY</div>
+            <div class="report-subtitle">College of Computer Studies — University of Cebu</div>
+            <div class="report-info">Generated: ${dateStr} at ${timeStr}</div>
         </div>
 
-        <div class="stats">
+        <div class="student-info-box">
+            <div>
+                <div class="student-name">${window.__SESSION__.first} ${window.__SESSION__.last}</div>
+                <div class="student-id">ID: ${window.__SESSION__.id}</div>
+            </div>
+        </div>
+
+        <div class="stats-section">
             <div class="stat-box">
                 <div class="stat-value">${totalHours}</div>
                 <div class="stat-label">Total Sit-in Hours</div>
@@ -1236,7 +1467,7 @@ function exportSummaryPDF() {
             </div>
             <div class="stat-box">
                 <div class="stat-value">${avgDuration}</div>
-                <div class="stat-label">Avg Duration</div>
+                <div class="stat-label">Avg Session</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value">${longestSession}</div>
@@ -1251,8 +1482,8 @@ function exportSummaryPDF() {
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Duration</th>
+                    <th>Lab</th>
                     <th>PC #</th>
-                    <th>Laboratory</th>
                     <th>Purpose</th>
                     <th>Status</th>
                 </tr>
@@ -1268,7 +1499,7 @@ function exportSummaryPDF() {
         const hours = Math.floor(durationMin / 60);
         const mins = durationMin % 60;
         const durationStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-        const statusLabel = r.status === 'completed' ? 'Completed' : r.status === 'active' ? 'Active' : 'Cancelled';
+        const statusLabel = r.status === 'completed' ? 'Done' : r.status === 'active' ? 'Active' : 'Cancelled';
 
         html += `
             <tr>
@@ -1276,8 +1507,8 @@ function exportSummaryPDF() {
                 <td>${r.login || 'N/A'}</td>
                 <td>${r.logout && r.logout !== '—' ? r.logout : 'N/A'}</td>
                 <td>${durationStr}</td>
-                <td>${r.computer_number || '—'}</td>
                 <td>${r.lab_name || 'N/A'}</td>
+                <td>${r.computer_number || '—'}</td>
                 <td>${r.purpose || 'N/A'}</td>
                 <td>${statusLabel}</td>
             </tr>
@@ -1288,8 +1519,8 @@ function exportSummaryPDF() {
             </tbody>
         </table>
         <div class="footer">
-            <p>Generated on ${new Date().toLocaleString()}</p>
-            <p>CCS Sit-in Monitoring System</p>
+            <p>CCS Sit-in Monitoring System | UC — College of Computer Studies</p>
+            <p>Printed: ${dateStr} at ${timeStr}</p>
         </div>
     </body>
     </html>

@@ -547,8 +547,27 @@ $avatarSrc = (!empty($savedPic) && file_exists($savedPic))
                 <input class="form-control-ccs" type="text" id="rName" value="Kimmy D. Yammy" readonly />
               </div>
               <div class="col-12">
-                <label class="form-label-ccs">Purpose <span style="color:var(--red)">*</span></label>
-                <input class="form-control-ccs" type="text" id="rPurpose" placeholder="e.g. C Programming, Thesis, Research…" />
+                <label class="form-label-ccs">Purpose / Language <span style="color:var(--red)">*</span></label>
+                <select class="form-select-ccs" id="rPurpose">
+                  <option value="">Select purpose / language…</option>
+                  <optgroup label="Programming Languages">
+                    <option>C Programming</option><option>C++ Programming</option>
+                    <option>Java</option><option>Python</option><option>PHP</option>
+                    <option>JavaScript</option><option>ASP.Net</option>
+                    <option>C# (.NET)</option><option>Visual Basic</option>
+                    <option>SQL / Database</option>
+                  </optgroup>
+                  <optgroup label="Academic Work">
+                    <option>Thesis / Capstone</option><option>Research Paper</option>
+                    <option>Assignment</option><option>Laboratory Exercise</option>
+                    <option>Online Class</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option>Personal Project</option>
+                    <option>Browsing / Research</option>
+                    <option>Other</option>
+                  </optgroup>
+                </select>
               </div>
               <div class="col-md-6">
                 <label class="form-label-ccs">Laboratory <span style="color:var(--red)">*</span></label>
@@ -617,6 +636,27 @@ $avatarSrc = (!empty($savedPic) && file_exists($savedPic))
             <div class="res-tip">
               <i class="fa-solid fa-id-card"></i>
               <p>Bring your <strong>valid school ID</strong> when claiming your reservation.</p>
+            </div>
+            
+            <!-- Computer Status Legend -->
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 0.82rem;">
+              <div style="font-weight: 600; color: var(--text); margin-bottom: 8px;"><i class="fa-solid fa-circle-info"></i> Computer Status Guide</div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <div style="width: 14px; height: 14px; background: #22c55e; border-radius: 3px;"></div>
+                <span style="color: var(--text3);">Available</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <div style="width: 14px; height: 14px; background: #ff4d6a; border-radius: 3px;"></div>
+                <span style="color: var(--text3);">Occupied</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <div style="width: 14px; height: 14px; background: #FFD700; border-radius: 3px;"></div>
+                <span style="color: var(--text3);">Reserved (Pending)</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 14px; height: 14px; background: #9CA3AF; border-radius: 3px;"></div>
+                <span style="color: var(--text3);">Unavailable (Disabled)</span>
+              </div>
             </div>
           </div>
         </div>

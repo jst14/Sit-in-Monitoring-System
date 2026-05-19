@@ -161,45 +161,14 @@ try {
             exit();
         }
 
-        if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-            ob_end_clean();
-            echo json_encode(['success' => false, 'message' => 'File upload failed']);
-            exit();
-        }
-
-        // Allowed extensions
-        $allowed_ext = ['zip', 'exe', 'msi', 'apk', 'pdf', 'docx'];
-        $file_name = $_FILES['file']['name'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        if (!in_array($file_ext, $allowed_ext)) {
-            ob_end_clean();
-            echo json_encode(['success' => false, 'message' => 'Invalid file type. Allowed: zip, exe, msi, apk, pdf, docx']);
-            exit();
-        }
-
-        // Create upload directory if it doesn't exist
-        $upload_dir = __DIR__ . '/uploads/software/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
-        }
-
-        // Generate unique filename
-        $unique_filename = time() . '_' . uniqid() . '.' . $file_ext;
-        $file_path = $upload_dir . $unique_filename;
-
-        if (!move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-            ob_end_clean();
-            echo json_encode(['success' => false, 'message' => 'Failed to save file']);
-            exit();
-        }
-
         // Insert into database for each selected lab
         $uploaded_count = 0;
+        $file_path = '/software/' . strtolower(str_replace(' ', '_', $software_name)) . '.exe';
+        
         foreach ($labs as $lab_id) {
             $lab_id = intval($lab_id);
             $stmt = $conn->prepare("INSERT INTO software (software_name, category, file_path, lab_id, uploaded_at) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->bind_param("sssi", $software_name, $category, $unique_filename, $lab_id);
+            $stmt->bind_param("sssi", $software_name, $category, $file_path, $lab_id);
             if ($stmt->execute()) {
                 $uploaded_count++;
             }
@@ -207,7 +176,7 @@ try {
 
         if ($uploaded_count > 0) {
             ob_end_clean();
-            echo json_encode(['success' => true, 'message' => "Software uploaded to $uploaded_count lab(s) successfully"]);
+            echo json_encode(['success' => true, 'message' => "Software registered in $uploaded_count lab(s) successfully"]);
         } else {
             // Remove file if db insert failed
             @unlink($file_path);
@@ -221,7 +190,19 @@ try {
     // DELETE SOFTWARE
     // ════════════════════════════════════════
     if ($action === 'delete') {
-        $software_id = isset($_POST['id']) ? intval($_POST['id']) : null;
+        // Try to get ID from POST data (form-encoded) or JSON body
+        $software_id = null;
+        
+        if (isset($_POST['id'])) {
+            $software_id = intval($_POST['id']);
+        } else {
+            // Try to read JSON from request body
+            $input = file_get_contents('php://input');
+            if (!empty($input)) {
+                $data = json_decode($input, true);
+                $software_id = isset($data['id']) ? intval($data['id']) : null;
+            }
+        }
 
         if (!$software_id) {
             ob_end_clean();

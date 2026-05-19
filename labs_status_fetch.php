@@ -52,6 +52,21 @@ try {
         
         $labs = [];
         foreach ($defaultLabs as $defaultLab) {
+            // Count unavailable computers for this lab
+            $unavail_query = "SELECT COUNT(*) as unavail_count FROM unavailable_computers WHERE lab_id = ?";
+            $unavail_stmt = $conn->prepare($unavail_query);
+            $unavailable_count = 0;
+            
+            if ($unavail_stmt) {
+                $lab_id = $defaultLab['id'];
+                $unavail_stmt->bind_param('i', $lab_id);
+                $unavail_stmt->execute();
+                $unavail_result = $unavail_stmt->get_result();
+                $unavail_data = $unavail_result->fetch_assoc();
+                $unavailable_count = intval($unavail_data['unavail_count'] ?? 0);
+                $unavail_stmt->close();
+            }
+            
             // Check if lab is disabled today
             $disable_query = "SELECT id FROM reservation_disabled_dates WHERE lab_id = ? AND disabled_date = ?";
             $disable_stmt = $conn->prepare($disable_query);
@@ -73,7 +88,8 @@ try {
                 'is_open' => $is_open,
                 'active_students' => 0,
                 'max_capacity' => 40,
-                'availability' => 40
+                'availability' => max(0, 40 - $unavailable_count),
+                'unavailable_count' => $unavailable_count
             ];
         }
         
@@ -111,6 +127,21 @@ try {
         $active_students = intval($sit_data['active_count'] ?? 0);
         $sit_stmt->close();
 
+        // Count unavailable computers for this lab
+        $unavail_query = "SELECT COUNT(*) as unavail_count FROM unavailable_computers WHERE lab_id = ?";
+        $unavail_stmt = $conn->prepare($unavail_query);
+        
+        if (!$unavail_stmt) {
+            throw new Exception('Prepare error: ' . $conn->error);
+        }
+        
+        $unavail_stmt->bind_param('i', $lab_id);
+        $unavail_stmt->execute();
+        $unavail_result = $unavail_stmt->get_result();
+        $unavail_data = $unavail_result->fetch_assoc();
+        $unavailable_count = intval($unavail_data['unavail_count'] ?? 0);
+        $unavail_stmt->close();
+
         // Check if lab is disabled today
         $today = date('Y-m-d');
         $disable_query = "SELECT id FROM reservation_disabled_dates WHERE lab_id = ? AND disabled_date = ?";
@@ -126,9 +157,9 @@ try {
         $is_disabled_today = $disable_result->num_rows > 0 ? 1 : 0;
         $disable_stmt->close();
 
-        // Default capacity and availability
+        // Default capacity and availability (subtract both active students and unavailable computers)
         $max_capacity = 40;
-        $availability = max(0, $max_capacity - $active_students);
+        $availability = max(0, $max_capacity - $active_students - $unavailable_count);
         
         // Lab is open only if it's not disabled today
         $is_open = $is_disabled_today ? 0 : 1;
@@ -139,7 +170,8 @@ try {
             'is_open' => $is_open,
             'active_students' => $active_students,
             'max_capacity' => $max_capacity,
-            'availability' => $availability
+            'availability' => $availability,
+            'unavailable_count' => $unavailable_count
         ];
     }
 

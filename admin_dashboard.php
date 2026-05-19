@@ -1509,8 +1509,9 @@ $admin = $_SESSION;
       letter-spacing: .08em;
       text-align: left;
       word-break: break-word;
+      white-space: nowrap;
     }
-    .rest-table-head-cell:nth-child(1) { width: 5%; text-align: center; }
+    .rest-table-head-cell:nth-child(1) { width: 8%; text-align: center; }
     .rest-table-head-cell:nth-child(2) { width: 6%; text-align: center; }
     .rest-table-head-cell:nth-child(3) { width: 20%; }
     .rest-table-head-cell:nth-child(4) { width: 12%; text-align: center; }
@@ -2408,10 +2409,8 @@ $admin = $_SESSION;
               <div class="a-card-body">
                 <div class="mb-3">
                   <label class="form-label">Laboratory</label>
-                  <select class="form-select" id="resLab">
+                  <select class="form-select" id="resLab" onchange="onLabChange()">
                     <option value="">Select lab…</option>
-                    <option value="1">Lab 517</option>
-                    <option value="2">Lab 518</option>
                     <option value="3">Lab 524</option>
                     <option value="4">Lab 526</option>
                     <option value="5">Lab 528</option>
@@ -2422,22 +2421,45 @@ $admin = $_SESSION;
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Reservation Date</label>
-                  <input type="date" class="form-control" id="resDate" />
+                  <input type="date" class="form-control" id="resDate" onchange="onLabChange()" />
                 </div>
-                <button class="btn btn-primary w-100" onclick="loadReservationRequests()">Filter</button>
-                <div class="mt-3" id="reservationDisabledNotice" style="display:none;">
-                  <div class="alert alert-danger py-2 px-3 mb-3" role="alert" style="border-radius:10px;background:rgba(255,77,106,0.12);border:1px solid rgba(255,77,106,0.3);color:#ffccd5;font-size:.88rem;">
+                <button class="btn btn-success w-100 mb-2" onclick="loadReservationRequests(); toast('Data refreshed', 'success');">
+                  <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+                <div class="mt-2" id="reservationDisabledNotice" style="display:none;">
+                  <div class="alert alert-danger py-2 px-3 mb-2" role="alert" style="border-radius:10px;background:rgba(255,77,106,0.12);border:1px solid rgba(255,77,106,0.3);color:#ffccd5;font-size:.88rem;">
                     Reservations for this lab and date are disabled.
                   </div>
                 </div>
-                <div class="d-flex gap-2 mt-2">
+                
+                <!-- Color Legend -->
+                <div class="status-legend mt-3 p-2" style="background:rgba(255,255,255,0.02);border-radius:8px;font-size:0.85rem;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:16px;height:16px;background:#22c55e;border-radius:3px;"></div>
+                    <span>Available</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:16px;height:16px;background:#ff4d6a;border-radius:3px;"></div>
+                    <span>Occupied</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:16px;height:16px;background:#FFD700;border-radius:3px;"></div>
+                    <span>Reserved (Pending)</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:16px;height:16px;background:#9CA3AF;border-radius:3px;"></div>
+                    <span>Unavailable</span>
+                  </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
                   <button class="btn btn-success w-50" id="resAvailableCount">Available 40</button>
                   <button class="btn btn-danger w-50" id="resUsedCount">Used 0</button>
                 </div>
-                <div class="computer-layout-header">
+                <div class="computer-layout-header mt-3">
                   <div class="instructor-desk">Instructor&#39;s Desk</div>
                 </div>
-                <div class="mt-4" id="computerGrid">
+                <div class="mt-3" id="computerGrid">
                   <!-- computer chips go here -->
                 </div>
               </div>
@@ -2475,8 +2497,6 @@ $admin = $_SESSION;
                   <label class="form-label">Laboratory</label>
                   <select class="form-select" id="disableLab">
                     <option value="">Select lab…</option>
-                    <option value="1">Lab 517</option>
-                    <option value="2">Lab 518</option>
                     <option value="3">Lab 524</option>
                     <option value="4">Lab 526</option>
                     <option value="5">Lab 528</option>
@@ -2526,28 +2546,17 @@ $admin = $_SESSION;
         </div>
 
         <div class="row g-4">
-          <!-- Upload Section -->
+          <!-- Add Software Section -->
           <div class="col-lg-4">
             <div class="a-card">
               <div class="a-card-header">
-                <i class="fa-solid fa-upload"></i> Upload Software / File
+                <i class="fa-solid fa-plus"></i> Add Software
               </div>
               <div class="a-card-body">
-                <!-- File Upload Area -->
-                <div class="mb-3">
-                  <div class="upload-area" id="uploadArea" style="border: 2px dashed var(--border2); border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.75rem; display: block;"></i>
-                    <div style="color: var(--text1); font-weight: 600; margin-bottom: 0.25rem;">Drag & drop files here</div>
-                    <div style="color: var(--text2); font-size: 0.85rem;">or click to browse</div>
-                    <div style="color: var(--text2); font-size: 0.75rem; margin-top: 0.75rem;">Supported: zip, exe, msi, apk, pdf, docx</div>
-                  </div>
-                  <input type="file" id="softwareFile" accept=".zip,.exe,.msi,.apk,.pdf,.docx" style="display: none;" />
-                </div>
-
                 <!-- Software Name -->
                 <div class="mb-3">
                   <label class="form-label">Software / File Name</label>
-                  <input type="text" class="form-control" id="softwareName" placeholder="e.g., Visual Studio Code 1.88" />
+                  <input type="text" class="form-control" id="softwareName" placeholder="e.g., Visual Studio Code" />
                 </div>
 
                 <!-- Category -->
@@ -2575,7 +2584,7 @@ $admin = $_SESSION;
                 </div>
 
                 <button class="btn btn-primary w-100" onclick="submitSoftwareUpload()">
-                  <i class="fa-solid fa-upload"></i> Upload & Register Software
+                  <i class="fa-solid fa-check"></i> Add Software
                 </button>
               </div>
             </div>
@@ -2584,7 +2593,12 @@ $admin = $_SESSION;
           <!-- Registered Software -->
           <div class="col-lg-8">
             <div class="a-card">
-              <div class="a-card-header">Registered Software</div>
+              <div class="a-card-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span>Registered Software</span>
+                  <input type="text" id="softwareSearch" placeholder="Search software..." style="width: 200px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface3); color: var(--text1); font-size: 0.85rem;" onkeyup="filterRegisteredSoftware()" />
+                </div>
+              </div>
               <div class="a-card-body" id="registeredSoftware">
                 <div class="no-data">No software registered yet.</div>
               </div>
@@ -2850,6 +2864,44 @@ $admin = $_SESSION;
   </div>
 </div>
 
+<!-- Mark Computer Unavailable -->
+<div class="modal fade" id="modalMarkUnavailable" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title"><i class="fa-solid fa-exclamation-triangle"></i> Mark Computer Unavailable</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning" role="alert" style="background:rgba(255,193,7,0.12);border:1px solid rgba(255,193,7,0.3);color:#ffc107;">
+          <strong>Computer:</strong> <span id="unavailablePCNumber" style="font-weight:600;font-size:1.1rem;">PC 1</span>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reason for unavailability</label>
+          <select class="form-select" id="unavailableReason">
+            <option value="">Select reason...</option>
+            <option value="broken">Broken / Damaged</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="no_display">No Display</option>
+            <option value="no_keyboard">No Keyboard / Mouse</option>
+            <option value="network_issue">Network Issue</option>
+            <option value="software_error">Software Error</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Additional notes (optional)</label>
+          <textarea class="form-control" id="unavailableNotes" rows="3" placeholder="Describe the issue or when it will be fixed..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" onclick="submitMarkUnavailable()">Mark as Unavailable</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ══════════════════════════════════════════════════════════
      TOAST NOTIFICATION
@@ -2889,6 +2941,7 @@ let reservationComputerAssignments = {};
 let currentReservationStats = {};
 let liveLogoutTimeInterval = null; // interval for updating live logout times in reports
 let reservationLogsInterval = null; // interval for updating live durations in reservation logs
+let currentUnavailablePC = null; // track which PC is being marked unavailable
 
 // ── MOBILE SIDEBAR TOGGLE ──────────────────────────────────
 function toggleSidebar() {
@@ -2898,6 +2951,144 @@ function toggleSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarBackdrop').classList.remove('show');
+}
+
+// ── LEADERBOARD ────────────────────────────────────────────
+function loadLeaderboard() {
+  fetch('admin_leaderboard_fetch.php')
+    .then(r => r.json())
+    .then(data => renderLeaderboard(data))
+    .catch(() => renderLeaderboard([]));
+}
+
+function renderLeaderboard(leaderboard) {
+  const container = document.getElementById('leaderboardBody');
+  if (!container) return;
+
+  if (!leaderboard || leaderboard.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 2rem 1rem;">
+        <i class="fa-solid fa-chart-line"></i>
+        <p>No leaderboard data available yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Limit to top 50 for display (all available)
+  const topPlayers = leaderboard.slice(0, 50);
+  const podiumPlayers = topPlayers.slice(0, 3);
+  const restPlayers = topPlayers.slice(3);
+
+  const renderPodiumStep = (player, rank) => {
+    const trophyEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+    const hasPlayer = !!player;
+    const initials = hasPlayer ? player.name.split(' ').map(n => n[0]).join('').toUpperCase() : '---';
+    const profilePic = hasPlayer && player.profile_pic && player.profile_pic.trim() ? player.profile_pic + '?v=' + Math.random() : '';
+    const name = hasPlayer ? player.name : 'TBD';
+    const idNumber = hasPlayer ? player.id_number : '----';
+    const courseDisplay = hasPlayer && player.course ? player.course.toUpperCase() : 'N/A';
+    const yearDisplay = hasPlayer && player.year_level ? `Year ${player.year_level}` : 'N/A';
+    const points = hasPlayer ? player.points : '0';
+    const sessions = hasPlayer ? player.sit_in_count : '0';
+
+    return `
+      <div class="podium-step rank-${rank}">
+        <div class="podium-step-indicator">#${rank}</div>
+        <div class="podium-platform">
+          <div class="podium-card rank-${rank}">
+            <div class="podium-trophy">${trophyEmoji}</div>
+            ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(name)}" class="podium-pic" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231a151c%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%234d9fff%22%3E${escapeHtml(initials)}%3C/text%3E%3C/svg%3E'"/>` : `<div class="podium-avatar">${initials}</div>`}
+            <div class="podium-name">${escapeHtml(name)}</div>
+            <div class="podium-detail">${escapeHtml(idNumber)}</div>
+            <div class="podium-detail">${courseDisplay} • ${yearDisplay}</div>
+            <div class="podium-meta">
+              <div>
+                <div class="podium-label">Sessions</div>
+                <div class="podium-points rank-${rank}">${sessions}</div>
+              </div>
+              <div>
+                <div class="podium-label">Points</div>
+                <div class="podium-points rank-${rank}">${points}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  const podiumHtml = `
+    <div class="leaderboard-podium">
+      ${[2, 1, 3].map(rank => renderPodiumStep(podiumPlayers[rank - 1], rank)).join('')}
+    </div>
+  `;
+
+  // Render rest players (4th onwards) as a professional table
+  const restTableHtml = `
+    <div class="rest-players-section">
+      ${restPlayers.length > 0 ? `
+        <table class="rest-players-table">
+          <thead class="rest-table-head">
+            <tr>
+              <th class="rest-table-head-cell">Rank</th>
+              <th class="rest-table-head-cell"></th>
+              <th class="rest-table-head-cell">Name</th>
+              <th class="rest-table-head-cell">ID No.</th>
+              <th class="rest-table-head-cell">Course & Year</th>
+              <th class="rest-table-head-cell">Sessions</th>
+              <th class="rest-table-head-cell">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${restPlayers.map(player => {
+              const initials = player.name.split(' ').map(n => n[0]).join('').toUpperCase();
+              const profilePic = player.profile_pic && player.profile_pic.trim() 
+                ? player.profile_pic + '?v=' + Math.random() 
+                : '';
+              const courseDisplay = player.course ? player.course.toUpperCase() : 'N/A';
+              const yearDisplay = player.year_level ? player.year_level : 'N/A';
+              return `
+                <tr class="rest-table-row">
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-rank rank-${player.rank}">#${player.rank}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(player.name)}" class="rest-table-avatar" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'rest-table-avatar-placeholder', textContent: '${initials}'}))"/>` : `<div class="rest-table-avatar-placeholder">${initials}</div>`}
+                  </td>
+                  <td class="rest-table-cell">
+                    <div class="rest-table-player-info">
+                      <div class="rest-table-player-name">${escapeHtml(player.name)}</div>
+                    </div>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${escapeHtml(player.id_number)}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${courseDisplay} • Year ${yearDisplay}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat">${player.sit_in_count}</span>
+                  </td>
+                  <td class="rest-table-cell rest-table-cell-center">
+                    <span class="rest-table-stat points">${player.points}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      ` : `
+        <div class="empty-rest-players">
+          <i class="fa-solid fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+          <p>No additional leaderboard entries.</p>
+        </div>
+      `}
+    </div>
+  `;
+
+  container.innerHTML = podiumHtml + restTableHtml;
+  renderRewardTable(leaderboard);
 }
 
 // ── THEME TOGGLE ───────────────────────────────────────────
@@ -3050,6 +3241,19 @@ async function loadReservationRequests() {
   renderComputerControl(currentReservationStats);
 }
 
+// Auto-load reservation data when lab or date changes
+let resLoadTimeout = null;
+function onLabChange() {
+  clearTimeout(resLoadTimeout);
+  resLoadTimeout = setTimeout(() => {
+    const labId = parseInt(document.getElementById('resLab')?.value || 0, 10);
+    const date = document.getElementById('resDate')?.value || '';
+    if (labId && date) {
+      loadReservationRequests();
+    }
+  }, 500); // Debounce by 500ms
+}
+
 function renderDisabledNotice(stats) {
   const notice = document.getElementById('reservationDisabledNotice');
   if (!notice) return;
@@ -3126,8 +3330,40 @@ function attachReservationDragHandlers() {
 
 function attachComputerDropTargets() {
   document.querySelectorAll('.computer-chip').forEach(chip => {
+    // Add click handler for toggling PC availability
+    chip.onclick = async event => {
+      event.stopPropagation();
+      const computerNumber = parseInt(chip.dataset.computerNumber, 10);
+      const labId = parseInt(document.getElementById('resLab')?.value || 0, 10);
+      
+      if (!labId) {
+        toast('Please select a laboratory first.', 'warning');
+        return;
+      }
+      
+      // Check if computer is occupied - cannot toggle occupied computers
+      const style = window.getComputedStyle(chip);
+      const bg = style.backgroundColor;
+      const isOccupied = bg.includes('rgb(255, 77, 106)');
+      const isPending = bg.includes('rgb(0, 212, 255)') || bg.includes('rgb(255, 215, 0)');
+      
+      if (isOccupied || isPending) {
+        toast('Cannot toggle occupied or pending computers.', 'danger');
+        return;
+      }
+      
+      // Toggle availability
+      const isUnavailable = bg.includes('rgb(156, 163, 175)');
+      await toggleComputerAvailability(computerNumber, labId, !isUnavailable);
+    };
+    
     chip.ondragover = event => {
-      if (!chip.classList.contains('occupied')) {
+      // Prevent dropping on occupied or unavailable computers
+      const style = window.getComputedStyle(chip);
+      const bg = style.backgroundColor;
+      const isOccupiedOrUnavailable = bg.includes('rgb(255, 77, 106)') || bg.includes('rgb(156, 163, 175)');
+      
+      if (!isOccupiedOrUnavailable) {
         event.preventDefault();
         chip.classList.add('drag-over');
       }
@@ -3136,9 +3372,18 @@ function attachComputerDropTargets() {
     chip.ondrop = event => {
       event.preventDefault();
       chip.classList.remove('drag-over');
+      
+      // Check if computer is occupied or unavailable
+      const style = window.getComputedStyle(chip);
+      const bg = style.backgroundColor;
+      const isOccupiedOrUnavailable = bg.includes('rgb(255, 77, 106)') || bg.includes('rgb(156, 163, 175)');
+      if (isOccupiedOrUnavailable) {
+        toast('Cannot assign to occupied or unavailable computers.', 'danger');
+        return;
+      }
+      
       const reservationId = event.dataTransfer.getData('text/plain') || currentDraggedReservation;
       if (!reservationId) return;
-      if (chip.classList.contains('occupied')) return;
       const computerNumber = chip.dataset.computerNumber;
       if (!computerNumber) return;
       reservationComputerAssignments[reservationId] = Number(computerNumber);
@@ -3148,6 +3393,41 @@ function attachComputerDropTargets() {
       renderComputerControl(currentReservationStats);
     };
   });
+}
+
+// Toggle computer availability (mark as unavailable or available)
+async function toggleComputerAvailability(computerNumber, labId, markUnavailable) {
+  try {
+    const response = await fetch('toggle_computer_availability.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        computer_number: computerNumber,
+        lab_id: labId,
+        unavailable: markUnavailable ? 1 : 0
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      toast(data.message || 'Failed to toggle computer availability.', 'danger');
+      return;
+    }
+    
+    toast(
+      markUnavailable 
+        ? `Computer ${computerNumber} marked as unavailable.` 
+        : `Computer ${computerNumber} marked as available.`,
+      'success'
+    );
+    
+    // Reload reservation data to refresh the UI
+    loadReservationRequests();
+  } catch (err) {
+    console.error('Error toggling computer availability:', err);
+    toast('Error toggling computer availability.', 'danger');
+  }
 }
 
 // Helper: Calculate duration in minutes between two time strings (HH:MM)
@@ -3193,27 +3473,77 @@ function renderReservationLogs(logs) {
   const body = document.getElementById('reservationLogs');
   if (!body) return;
   if (!logs.length) {
-    body.innerHTML = '<div class="no-data">No logs available yet.</div>';
+    body.innerHTML = '<div class="no-data">No activity history available for this date.</div>';
     return;
   }
-  body.innerHTML = logs.map(req => {
-    const elapsedStatus = getReservationElapsedTime(req.reserved_date, req.time_start);
-    return `
-      <div class="reservation-log mb-3 p-3 border rounded" data-reservation-id="${req.id}">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div><strong>${req.lab_name}</strong> · ${req.reserved_date}</div>
-          <span class="badge ${req.status === 'approved' ? 'bg-success' : req.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark'}">${req.status}</span>
-        </div>
-        <div style="font-size:.92rem;line-height:1.4;">
-          <div><strong>ID:</strong> ${req.id_number}</div>
-          <div><strong>Name:</strong> ${req.student_name}</div>
-          <div><strong>Computer:</strong> ${req.computer_number ? req.computer_number : 'TBD'}</div>
-          <div><strong>Time Started:</strong> ${req.time_start}</div>
-          <div><strong style="color:var(--green);">Session Duration:</strong> <span class="live-duration" data-time-start="${req.time_start}" data-reserved-date="${req.reserved_date}">${elapsedStatus}</span></div>
-          <div><strong>Purpose:</strong> ${req.purpose}</div>
-        </div>
-      </div>`;
-  }).join('');
+  
+  // Group logs by status for better visualization
+  const approvedLogs = logs.filter(l => l.status === 'approved');
+  const rejectedLogs = logs.filter(l => l.status === 'rejected');
+  const pendingLogs = logs.filter(l => l.status === 'pending');
+  
+  let html = '';
+  
+  if (approvedLogs.length > 0) {
+    html += '<div class="mb-3"><h6 style="color:var(--green);font-weight:600;margin-bottom:10px;"><i class="fa-solid fa-check"></i> Completed</h6>';
+    approvedLogs.forEach(req => {
+      const elapsedStatus = getReservationElapsedTime(req.reserved_date, req.time_start);
+      html += `
+        <div class="reservation-log mb-2 p-3 border rounded" data-reservation-id="${req.id}" style="border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.05);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>${req.lab_name}</strong> · PC ${req.computer_number || 'TBD'}</div>
+            <span class="badge bg-success">Completed</span>
+          </div>
+          <div style="font-size:.85rem;line-height:1.4;">
+            <div><strong>Student:</strong> ${req.id_number} - ${req.student_name}</div>
+            <div><strong>Purpose:</strong> ${req.purpose}</div>
+            <div><strong>Time:</strong> ${req.time_start} to ${req.time_end}</div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+  
+  if (pendingLogs.length > 0) {
+    html += '<div class="mb-3"><h6 style="color:#FFD700;font-weight:600;margin-bottom:10px;"><i class="fa-solid fa-hourglass-half"></i> Pending</h6>';
+    pendingLogs.forEach(req => {
+      html += `
+        <div class="reservation-log mb-2 p-3 border rounded" data-reservation-id="${req.id}" style="border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>${req.lab_name}</strong> · ${req.reserved_date}</div>
+            <span class="badge bg-warning text-dark">Pending</span>
+          </div>
+          <div style="font-size:.85rem;line-height:1.4;">
+            <div><strong>Student:</strong> ${req.id_number} - ${req.student_name}</div>
+            <div><strong>Purpose:</strong> ${req.purpose}</div>
+            <div><strong>Time:</strong> ${req.time_start} to ${req.time_end}</div>
+            <div><strong>Computer:</strong> ${req.computer_number ? req.computer_number : 'Not assigned'}</div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+  
+  if (rejectedLogs.length > 0) {
+    html += '<div class="mb-3"><h6 style="color:#ff4d6a;font-weight:600;margin-bottom:10px;"><i class="fa-solid fa-xmark"></i> Rejected</h6>';
+    rejectedLogs.forEach(req => {
+      html += `
+        <div class="reservation-log mb-2 p-3 border rounded" data-reservation-id="${req.id}" style="border-color:rgba(255,77,106,0.3);background:rgba(255,77,106,0.05);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>${req.lab_name}</strong> · ${req.reserved_date}</div>
+            <span class="badge bg-danger">Rejected</span>
+          </div>
+          <div style="font-size:.85rem;line-height:1.4;">
+            <div><strong>Student:</strong> ${req.id_number} - ${req.student_name}</div>
+            <div><strong>Purpose:</strong> ${req.purpose}</div>
+            <div><strong>Time:</strong> ${req.time_start} to ${req.time_end}</div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+  
+  body.innerHTML = html;
 }
 
 // Update live durations every 10 seconds
@@ -3259,25 +3589,43 @@ function renderComputerControl(stats) {
   }
 
   const occupied = new Set(stats.occupied || []);
+  const pending = new Set(stats.pending_computers || []);
+  const unavailable = new Set(stats.unavailable || []);
   const assignedNumbers = new Set(Object.values(reservationComputerAssignments));
   const used = occupied.size;
-  const available = Math.max(0, 40 - used);
+  const available = Math.max(0, 40 - used - pending.size - unavailable.size);
   availableEl.textContent = `Available ${available}`;
   usedEl.textContent = `Used ${used}`;
 
   const chips = [];
   for (let i = 1; i <= 40; i++) {
     const isOccupied = occupied.has(i);
-    const isAssigned = assignedNumbers.has(i) && !isOccupied;
-    const chipClass = isOccupied ? 'computer-chip occupied' : isAssigned ? 'computer-chip assigned' : 'computer-chip';
+    const isPending = pending.has(i);
+    const isUnavailable = unavailable.has(i);
+    const isAssigned = assignedNumbers.has(i) && !isOccupied && !isPending && !isUnavailable;
+    
     let bgStyle = 'background:#22c55e;'; // available - green
+    let tooltip = 'Available';
+    
     if (isOccupied) {
       bgStyle = 'background:#ff4d6a;'; // occupied - red
+      tooltip = 'Occupied';
+    } else if (isPending) {
+      bgStyle = 'background:#FFD700;'; // pending - yellow
+      tooltip = 'Reserved (Pending)';
+    } else if (isUnavailable) {
+      bgStyle = 'background:#9CA3AF;'; // unavailable - grey
+      tooltip = 'Unavailable / Broken';
     } else if (isAssigned) {
       bgStyle = 'background:#FFD700;'; // assigned - taxi yellow
+      tooltip = 'Assigned';
     }
+    
     chips.push(`
-      <div class="${chipClass}" data-computer-number="${i}" style="${bgStyle}">
+      <div class="computer-chip" data-computer-number="${i}" 
+           style="${bgStyle}" 
+           title="${tooltip}"
+           ${isOccupied || isUnavailable ? 'style="' + bgStyle + 'cursor:not-allowed;opacity:0.7;"' : ''}>
         ${i}
       </div>`);
   }
@@ -3357,55 +3705,205 @@ function handleFeedbackSearch() {
   renderFeedbackReports(feedbackItems);
 }
 
-function printFeedbackReport() {
+function generateFormalFeedbackHTML() {
   const tableHtml = document.getElementById('feedbackTable')?.outerHTML || '';
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) return;
-  printWindow.document.write(`
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  
+  // Calculate stats from displayed data
+  const rows = document.querySelectorAll('#feedbackBody tr');
+  const totalFeedback = rows.length;
+  
+  return `
+    <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
         <title>Feedback Report</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
-          h1 { margin-bottom: 16px; font-size: 24px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-          th, td { border: 1px solid #444; padding: 10px 8px; text-align: left; }
-          th { background: #f2f2f2; }
+          @page {
+            size: A4;
+            margin: 0.5in;
+          }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            padding: 40px;
+            color: #1a1a1a;
+            line-height: 1.6;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 20px;
+          }
+          .report-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #003366;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+          }
+          .report-subtitle {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+          }
+          .report-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+          }
+          .report-info span {
+            display: inline-block;
+            margin-right: 30px;
+          }
+          .stats-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+          }
+          .stat-box {
+            text-align: center;
+          }
+          .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+          }
+          .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #003366;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            font-size: 12px;
+          }
+          th {
+            background-color: #003366 !important;
+            color: white !important;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #003366;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+          }
+          td {
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+          }
+          tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          tr:hover {
+            background-color: #f0f0f0;
+          }
+          .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+          }
+          .signature-block {
+            width: 45%;
+          }
+          .signature-line {
+            border-top: 1px solid #1a1a1a;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .signature-title {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            text-align: center;
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+          }
+          @media print {
+            body { padding: 20px; }
+            table { font-size: 11px; }
+          }
         </style>
       </head>
       <body>
-        <h1>Feedback Report</h1>
+        <div class="header">
+          <div class="report-title">SIT-IN MONITORING SYSTEM</div>
+          <div class="report-subtitle">College of Computer Studies — University of Cebu</div>
+          <div class="report-info">
+            <span><strong>Student Feedback Report</strong></span>
+            <span>Generated: ${dateStr} at ${timeStr}</span>
+          </div>
+        </div>
+        
+        <div class="stats-section">
+          <div class="stat-box">
+            <div class="stat-label">Total Feedback</div>
+            <div class="stat-value">${totalFeedback}</div>
+          </div>
+        </div>
+        
         ${tableHtml}
+        
+        <div class="signature-section">
+          <div class="signature-block">
+            <div class="signature-title">Prepared by</div>
+            <div class="signature-line">LAB-IN-CHARGE</div>
+          </div>
+          <div class="signature-block">
+            <div class="signature-title">Noted by</div>
+            <div class="signature-line">CCS DEAN / DEPARTMENT HEAD</div>
+          </div>
+        </div>
+        
+        <div class="footer">
+          CCS Sit-in Monitoring System | UC — College of Computer Studies<br>
+          Printed: ${dateStr} at ${timeStr}
+        </div>
       </body>
     </html>
-  `);
+  `;
+}
+
+function printFeedbackReport() {
+  const html = generateFormalFeedbackHTML();
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+  printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
 }
 
 function exportFeedbackPDF() {
-  const tableHtml = document.getElementById('feedbackTable')?.outerHTML || '';
+  const html = generateFormalFeedbackHTML();
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Feedback Report PDF</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 18px; color: #111; }
-          h1 { margin-bottom: 12px; font-size: 22px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 14px; }
-          th, td { border: 1px solid #222; padding: 10px 8px; text-align: left; }
-          th { background: #f6f6f6; }
-        </style>
-      </head>
-      <body>
-        <h1>Feedback Report</h1>
-        ${tableHtml}
-      </body>
-    </html>
-  `);
+  printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
@@ -3725,144 +4223,6 @@ function renderAnalyticsLabChart(labs) {
       }
     }
   });
-}
-
-// ── LEADERBOARD ────────────────────────────────────────────
-function loadLeaderboard() {
-  fetch('admin_leaderboard_fetch.php')
-    .then(r => r.json())
-    .then(data => renderLeaderboard(data))
-    .catch(() => renderLeaderboard([]));
-}
-
-function renderLeaderboard(leaderboard) {
-  const container = document.getElementById('leaderboardBody');
-  if (!container) return;
-
-  if (!leaderboard || leaderboard.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state" style="padding: 2rem 1rem;">
-        <i class="fa-solid fa-chart-line"></i>
-        <p>No leaderboard data available yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Limit to top 50 for display (all available)
-  const topPlayers = leaderboard.slice(0, 50);
-  const podiumPlayers = topPlayers.slice(0, 3);
-  const restPlayers = topPlayers.slice(3);
-
-  const renderPodiumStep = (player, rank) => {
-    const trophyEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
-    const hasPlayer = !!player;
-    const initials = hasPlayer ? player.name.split(' ').map(n => n[0]).join('').toUpperCase() : '---';
-    const profilePic = hasPlayer && player.profile_pic && player.profile_pic.trim() ? player.profile_pic + '?v=' + Math.random() : '';
-    const name = hasPlayer ? player.name : 'TBD';
-    const idNumber = hasPlayer ? player.id_number : '----';
-    const courseDisplay = hasPlayer && player.course ? player.course.toUpperCase() : 'N/A';
-    const yearDisplay = hasPlayer && player.year_level ? `Year ${player.year_level}` : 'N/A';
-    const points = hasPlayer ? player.points : '0';
-    const sessions = hasPlayer ? player.sit_in_count : '0';
-
-    return `
-      <div class="podium-step rank-${rank}">
-        <div class="podium-step-indicator">#${rank}</div>
-        <div class="podium-platform">
-          <div class="podium-card rank-${rank}">
-            <div class="podium-trophy">${trophyEmoji}</div>
-            ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(name)}" class="podium-pic" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231a151c%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%234d9fff%22%3E${escapeHtml(initials)}%3C/text%3E%3C/svg%3E'"/>` : `<div class="podium-avatar">${initials}</div>`}
-            <div class="podium-name">${escapeHtml(name)}</div>
-            <div class="podium-detail">${escapeHtml(idNumber)}</div>
-            <div class="podium-detail">${courseDisplay} • ${yearDisplay}</div>
-            <div class="podium-meta">
-              <div>
-                <div class="podium-label">Sessions</div>
-                <div class="podium-points rank-${rank}">${sessions}</div>
-              </div>
-              <div>
-                <div class="podium-label">Points</div>
-                <div class="podium-points rank-${rank}">${points}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  };
-
-  const podiumHtml = `
-    <div class="leaderboard-podium">
-      ${[2, 1, 3].map(rank => renderPodiumStep(podiumPlayers[rank - 1], rank)).join('')}
-    </div>
-  `;
-
-  // Render rest players (4th onwards) as a professional table
-  const restTableHtml = `
-    <div class="rest-players-section">
-      ${restPlayers.length > 0 ? `
-        <table class="rest-players-table">
-          <thead class="rest-table-head">
-            <tr>
-              <th class="rest-table-head-cell">Rank</th>
-              <th class="rest-table-head-cell"></th>
-              <th class="rest-table-head-cell">Name</th>
-              <th class="rest-table-head-cell">ID No.</th>
-              <th class="rest-table-head-cell">Course & Year</th>
-              <th class="rest-table-head-cell">Sessions</th>
-              <th class="rest-table-head-cell">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${restPlayers.map(player => {
-              const initials = player.name.split(' ').map(n => n[0]).join('').toUpperCase();
-              const profilePic = player.profile_pic && player.profile_pic.trim() 
-                ? player.profile_pic + '?v=' + Math.random() 
-                : '';
-              const courseDisplay = player.course ? player.course.toUpperCase() : 'N/A';
-              const yearDisplay = player.year_level ? player.year_level : 'N/A';
-              return `
-                <tr class="rest-table-row">
-                  <td class="rest-table-cell rest-table-cell-center">
-                    <span class="rest-table-rank rank-${player.rank}">#${player.rank}</span>
-                  </td>
-                  <td class="rest-table-cell rest-table-cell-center">
-                    ${profilePic ? `<img src="${escapeHtml(profilePic)}" alt="${escapeHtml(player.name)}" class="rest-table-avatar" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'rest-table-avatar-placeholder', textContent: '${initials}'}))"/>` : `<div class="rest-table-avatar-placeholder">${initials}</div>`}
-                  </td>
-                  <td class="rest-table-cell">
-                    <div class="rest-table-player-info">
-                      <div class="rest-table-player-name">${escapeHtml(player.name)}</div>
-                    </div>
-                  </td>
-                  <td class="rest-table-cell rest-table-cell-center">
-                    <span class="rest-table-stat">${escapeHtml(player.id_number)}</span>
-                  </td>
-                  <td class="rest-table-cell rest-table-cell-center">
-                    <span class="rest-table-stat">${courseDisplay} • Year ${yearDisplay}</span>
-                  </td>
-                  <td class="rest-table-cell rest-table-cell-center">
-                    <span class="rest-table-stat">${player.sit_in_count}</span>
-                  </td>
-                  <td class="rest-table-cell rest-table-cell-center">
-                    <span class="rest-table-stat points">${player.points}</span>
-                  </td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      ` : `
-        <div class="empty-rest-players">
-          <i class="fa-solid fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-          <p>No additional leaderboard entries.</p>
-        </div>
-      `}
-    </div>
-  `;
-
-  container.innerHTML = podiumHtml + restTableHtml;
-  renderRewardTable(leaderboard);
 }
 
 function renderRewardTable(leaderboard) {
@@ -4263,21 +4623,222 @@ function exportReportsExcel() {
   exportReportTable('sit-in-report.xls');
 }
 
-function exportReportsPDF() {
+function generateFormalReportHTML() {
   const tableHtml = document.getElementById('reportTable')?.outerHTML || '';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  
+  // Calculate stats from the sitInRecs data directly
+  const q = (document.getElementById('reportSearch')?.value || '').toLowerCase();
+  const dd = document.getElementById('reportDate')?.value.trim();
+  
+  const filteredData = sitInRecs.filter(r => {
+    const matchesText = (r.id_number + ' ' + r.name).toLowerCase().includes(q);
+    const matchesDate = dd ? (
+      formatDate(r.date) === dd ||
+      formatDate(r.login) === dd ||
+      formatDate(r.logout) === dd
+    ) : true;
+    return matchesText && matchesDate;
+  });
+  
+  let totalRecords = filteredData.length;
+  let activeCount = 0;
+  let completedCount = 0;
+  
+  filteredData.forEach(r => {
+    if (r.status === 'Active') activeCount++;
+    else if (r.status === 'Done') completedCount++;
+  });
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Sit-in Activity Report</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 0.5in;
+          }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            padding: 40px;
+            color: #1a1a1a;
+            line-height: 1.6;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 20px;
+          }
+          .report-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #003366;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+          }
+          .report-subtitle {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+          }
+          .report-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+          }
+          .report-info span {
+            display: inline-block;
+            margin-right: 30px;
+          }
+          .stats-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+          }
+          .stat-box {
+            text-align: center;
+          }
+          .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+          }
+          .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #003366;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            font-size: 12px;
+          }
+          th {
+            background-color: #003366 !important;
+            color: white !important;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #003366;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+          }
+          td {
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+          }
+          tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          tr:hover {
+            background-color: #f0f0f0;
+          }
+          .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+          }
+          .signature-block {
+            width: 45%;
+          }
+          .signature-line {
+            border-top: 1px solid #1a1a1a;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .signature-title {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            text-align: center;
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+          }
+          @media print {
+            body { padding: 20px; }
+            table { font-size: 11px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="report-title">SIT-IN MONITORING SYSTEM</div>
+          <div class="report-subtitle">College of Computer Studies — University of Cebu</div>
+          <div class="report-info">
+            <span><strong>Sit-in Activity Report</strong></span>
+            <span>Generated: ${dateStr} at ${timeStr}</span>
+          </div>
+        </div>
+        
+        <div class="stats-section">
+          <div class="stat-box">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value">${totalRecords}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Active</div>
+            <div class="stat-value">${activeCount}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value">${completedCount}</div>
+          </div>
+        </div>
+        
+        ${tableHtml}
+        
+        <div class="signature-section">
+          <div class="signature-block">
+            <div class="signature-title">Prepared by</div>
+            <div class="signature-line">LAB-IN-CHARGE</div>
+          </div>
+          <div class="signature-block">
+            <div class="signature-title">Noted by</div>
+            <div class="signature-line">CCS DEAN / DEPARTMENT HEAD</div>
+          </div>
+        </div>
+        
+        <div class="footer">
+          CCS Sit-in Monitoring System | UC — College of Computer Studies<br>
+          Printed: ${dateStr} at ${timeStr}
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+function exportReportsPDF() {
+  const html = generateFormalReportHTML();
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
-  printWindow.document.write(`
-    <html><head><title>Sit-in Report</title><style>
-      body{font-family:Arial,sans-serif;padding:20px;color:#111}
-      h1{margin-bottom:16px;font-size:22px}
-      table{width:100%;border-collapse:collapse;margin-top:14px}
-      th,td{border:1px solid #444;padding:8px;text-align:left}
-      th{background:#f4f4f4}
-    </style></head><body>
-      <h1>Sit-in Report</h1>
-      ${tableHtml}
-    </body></html>`);
+  printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
@@ -4459,7 +5020,7 @@ function liveSearch() {
       const r    = await fetch(`search_student.php?q=${encodeURIComponent(q)}`);
       const data = await r.json();
       if (!data.length) {
-        res.innerHTML = `<div class="search-hint"><i class="fa-solid fa-user-slash"></i>No student found for "<strong style="color:var(--text1);">${q}</strong>"</div>`;
+        res.innerHTML = `<div class="search-hint"><i class="fa-solid fa-userz-slash"></i>No student found for "<strong style="color:var(--text1);">${q}</strong>"</div>`;
         return;
       }
       res.innerHTML = data.map(s => {
@@ -4930,7 +5491,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global variables for software management
 let selectedLabs = [];
-let uploadedFileName = null;
+let allRegisteredSoftware = []; // Store for search filtering
 
 // Load labs on page init
 async function loadSoftwareLabs() {
@@ -4963,64 +5524,10 @@ function updateSelectedLabs() {
   selectedLabs = Array.from(checkboxes).map(cb => cb.value);
 }
 
-// Setup drag & drop file upload
-document.addEventListener('DOMContentLoaded', () => {
-  const uploadArea = document.getElementById('uploadArea');
-  const fileInput = document.getElementById('softwareFile');
-  
-  if (uploadArea && fileInput) {
-    uploadArea.addEventListener('click', () => fileInput.click());
-    
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = 'var(--accent2)';
-      uploadArea.style.backgroundColor = 'rgba(122, 0, 204, 0.05)';
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.style.borderColor = 'var(--border2)';
-      uploadArea.style.backgroundColor = 'transparent';
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = 'var(--border2)';
-      uploadArea.style.backgroundColor = 'transparent';
-      
-      if (e.dataTransfer.files.length > 0) {
-        fileInput.files = e.dataTransfer.files;
-        uploadedFileName = e.dataTransfer.files[0].name;
-        updateUploadAreaDisplay();
-      }
-    });
-    
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
-        uploadedFileName = fileInput.files[0].name;
-        updateUploadAreaDisplay();
-      }
-    });
-  }
-});
-
-// Update upload area display
-function updateUploadAreaDisplay() {
-  const uploadArea = document.getElementById('uploadArea');
-  if (uploadedFileName) {
-    uploadArea.innerHTML = `
-      <i class="fa-solid fa-file-check" style="font-size: 2.5rem; color: var(--green); margin-bottom: 0.75rem; display: block;"></i>
-      <div style="color: var(--text1); font-weight: 600; margin-bottom: 0.25rem;">File selected</div>
-      <div style="color: var(--text2); font-size: 0.85rem;">${uploadedFileName}</div>
-      <div style="color: var(--text2); font-size: 0.75rem; margin-top: 0.75rem;">Click or drop another file to change</div>
-    `;
-  }
-}
-
-// Submit software upload
+// Submit software registration
 async function submitSoftwareUpload() {
   const softwareName = document.getElementById('softwareName').value.trim();
   const category = document.getElementById('softwareCategory').value.trim();
-  const fileInput = document.getElementById('softwareFile');
   
   if (!softwareName) {
     toast('Please enter software name', 'warning');
@@ -5032,27 +5539,22 @@ async function submitSoftwareUpload() {
     return;
   }
   
-  if (!fileInput.files.length) {
-    toast('Please select a file to upload', 'warning');
-    return;
-  }
-  
   if (selectedLabs.length === 0) {
     toast('Please select at least one lab', 'warning');
     return;
   }
   
-  const formData = new FormData();
-  formData.append('action', 'upload');
-  formData.append('software_name', softwareName);
-  formData.append('category', category);
-  formData.append('file', fileInput.files[0]);
-  formData.append('labs', JSON.stringify(selectedLabs));
+  const payload = {
+    software_name: softwareName,
+    category: category,
+    labs: JSON.stringify(selectedLabs)
+  };
   
   try {
-    const response = await fetch('admin_software_upload.php', {
+    const response = await fetch('admin_software_upload.php?action=upload', {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(payload)
     });
     
     const data = await response.json();
@@ -5063,28 +5565,19 @@ async function submitSoftwareUpload() {
       // Reset form
       document.getElementById('softwareName').value = '';
       document.getElementById('softwareCategory').value = '';
-      fileInput.value = '';
-      uploadedFileName = null;
       document.querySelectorAll('.lab-checkbox').forEach(cb => cb.checked = false);
       selectedLabs = [];
+      document.getElementById('softwareSearch').value = '';
       
       // Refresh lists
-      const uploadArea = document.getElementById('uploadArea');
-      uploadArea.innerHTML = `
-        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.75rem; display: block;"></i>
-        <div style="color: var(--text1); font-weight: 600; margin-bottom: 0.25rem;">Drag & drop files here</div>
-        <div style="color: var(--text2); font-size: 0.85rem;">or click to browse</div>
-        <div style="color: var(--text2); font-size: 0.75rem; margin-top: 0.75rem;">Supported: zip, exe, msi, apk, pdf, docx</div>
-      `;
-      
       loadSoftwareOverview();
       loadRegisteredSoftware();
     } else {
-      toast(data.message || 'Upload failed', 'danger');
+      toast(data.message || 'Failed to add software', 'danger');
     }
   } catch (err) {
-    console.error('Upload error:', err);
-    toast('Error uploading file', 'danger');
+    console.error('Add software error:', err);
+    toast('Error adding software', 'danger');
   }
 }
 
@@ -5116,6 +5609,42 @@ async function loadSoftwareOverview() {
   }
 }
 
+// Helper function to get software icon
+function getSoftwareIcon(softwareName) {
+  const iconMap = {
+    'MS Office 365': { icon: 'fa-file-word', color: '#2D5AA2' },
+    'Visual Studio Code': { icon: 'fa-code', color: '#0078D4' },
+    'Visual Studio': { icon: 'fa-code', color: '#9146FF' },
+    'XAMPP': { icon: 'fa-server', color: '#FB7D1D' },
+    'MySQL Workbench': { icon: 'fa-database', color: '#00758F' },
+    'NetBeans IDE': { icon: 'fa-pen-nib', color: '#1B6AC6' },
+    'IntelliJ IDEA': { icon: 'fa-bolt', color: '#F31B32' },
+    'Android Studio': { icon: 'fa-mobile', color: '#3DDC84' },
+    'Python': { icon: 'fa-brands fa-python', color: '#3776AB' },
+    'Git': { icon: 'fa-code-branch', color: '#F1502F' },
+    'Adobe Photoshop': { icon: 'fa-image', color: '#31A8FF' },
+    'Figma': { icon: 'fa-paintbrush', color: '#F24E1E' },
+    'Cisco Packet Tracer': { icon: 'fa-network-wired', color: '#1BA1E2' },
+    'Oracle Virtual Box': { icon: 'fa-box', color: '#183153' },
+    'VMware': { icon: 'fa-microchip', color: '#607078' },
+    'Notepad++': { icon: 'fa-file-code', color: '#90E59B' }
+  };
+  
+  // Try exact match first
+  if (iconMap[softwareName]) {
+    return iconMap[softwareName];
+  }
+  
+  // Try partial match
+  for (const [key, val] of Object.entries(iconMap)) {
+    if (softwareName.includes(key) || key.includes(softwareName)) {
+      return val;
+    }
+  }
+  
+  return { icon: 'fa-cube', color: '#DB79FF' };
+}
+
 // Load registered software list
 async function loadRegisteredSoftware() {
   try {
@@ -5123,35 +5652,95 @@ async function loadRegisteredSoftware() {
     const data = await response.json();
     
     if (data.success && data.software) {
-      const container = document.getElementById('registeredSoftware');
-      
-      if (data.software.length === 0) {
-        container.innerHTML = '<div class="no-data">No software registered yet.</div>';
-        return;
-      }
-      
-      let html = '<div style="overflow-x: auto;"><table class="table table-sm mb-0" style="color: var(--text1);">';
-      html += '<thead style="background: var(--surface2);"><tr><th>Name</th><th>Category</th><th>Lab</th><th>Uploaded</th><th>Action</th></tr></thead><tbody>';
-      
-      data.software.forEach(soft => {
-        const uploadDate = new Date(soft.uploaded_at).toLocaleDateString();
-        html += `
-          <tr>
-            <td style="font-weight: 500;">${soft.name}</td>
-            <td><span style="background: rgba(122, 0, 204, 0.15); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">${soft.category}</span></td>
-            <td>${soft.lab_name}</td>
-            <td style="font-size: 0.85rem; color: var(--text2);">${uploadDate}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="deleteSoftware(${soft.id})"><i class="fa-solid fa-trash"></i></button></td>
-          </tr>
-        `;
-      });
-      
-      html += '</tbody></table></div>';
-      container.innerHTML = html;
+      allRegisteredSoftware = data.software;
+      renderRegisteredSoftware(data.software);
     }
   } catch (err) {
     console.error('Error loading software:', err);
   }
+}
+
+// Render registered software with icons
+function renderRegisteredSoftware(softwareList) {
+  const container = document.getElementById('registeredSoftware');
+  
+  if (!softwareList || softwareList.length === 0) {
+    container.innerHTML = '<div class="no-data">No software registered yet.</div>';
+    return;
+  }
+  
+  let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">';
+  
+  softwareList.forEach(soft => {
+    const iconData = getSoftwareIcon(soft.name);
+    const uploadDate = new Date(soft.uploaded_at).toLocaleDateString();
+    const labs = soft.lab_name ? soft.lab_name.split(', ').slice(0, 2).join(', ') : 'N/A';
+    const labsMore = soft.lab_name ? soft.lab_name.split(', ').length > 2 ? `+${soft.lab_name.split(', ').length - 2}` : '' : '';
+    
+    html += `
+      <div style="
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+      "
+      onmouseover="this.style.borderColor='var(--accent2)'; this.style.boxShadow='0 4px 12px rgba(122, 0, 204, 0.2)';"
+      onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+        <div style="
+          width: 48px;
+          height: 48px;
+          background: rgba(${hexToRgb(iconData.color).join(', ')}, 0.1);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 8px;
+        ">
+          <i class="fa-solid ${iconData.icon}" style="color: ${iconData.color}; font-size: 1.5rem;"></i>
+        </div>
+        <div style="color: var(--text1); font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; word-break: break-word;">${soft.name}</div>
+        <div style="color: var(--text2); font-size: 0.75rem; margin-bottom: 6px;">${soft.category}</div>
+        <div style="color: var(--text2); font-size: 0.7rem; margin-bottom: 8px;">${labs} ${labsMore}</div>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteSoftware(${soft.id})" style="font-size: 0.75rem; padding: 2px 6px;">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// Filter registered software by search
+function filterRegisteredSoftware() {
+  const query = document.getElementById('softwareSearch').value.toLowerCase();
+  
+  if (!query) {
+    renderRegisteredSoftware(allRegisteredSoftware);
+    return;
+  }
+  
+  const filtered = allRegisteredSoftware.filter(soft => 
+    soft.name.toLowerCase().includes(query) || 
+    soft.category.toLowerCase().includes(query) ||
+    (soft.lab_name && soft.lab_name.toLowerCase().includes(query))
+  );
+  
+  renderRegisteredSoftware(filtered);
+}
+
+// Helper function to convert hex to rgb
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16)
+  ] : [219, 121, 255];
 }
 
 // Delete software
@@ -5159,10 +5748,13 @@ async function deleteSoftware(id) {
   if (!confirm('Are you sure you want to delete this software?')) return;
   
   try {
+    const formData = new URLSearchParams();
+    formData.append('id', id);
+    
     const response = await fetch('admin_software_upload.php?action=delete', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id })
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
     });
     
     const data = await response.json();

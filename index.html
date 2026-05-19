@@ -23,7 +23,42 @@
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto gap-1">
         <li class="nav-item"><a class="nav-link" href="#/home">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#/community">Community ▾</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Community</a>
+          <ul class="dropdown-menu dropdown-menu-dark community-dropdown-menu" aria-labelledby="communityDropdown">
+            <li><a class="dropdown-item community-dropdown-item" href="#/community/sitin">
+              <div class="dropdown-item-icon"><i class="fa-solid fa-people-group"></i></div>
+              <div class="dropdown-item-content">
+                <div class="dropdown-item-title">Sit-in</div>
+                <div class="dropdown-item-desc">Find a laboratory to sit in</div>
+              </div>
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item community-dropdown-item" href="#/community/evaluation">
+              <div class="dropdown-item-icon"><i class="fa-solid fa-comments"></i></div>
+              <div class="dropdown-item-content">
+                <div class="dropdown-item-title">Evaluation/Reviews</div>
+                <div class="dropdown-item-desc">Share your experience with us</div>
+              </div>
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item community-dropdown-item" href="#/community/events">
+              <div class="dropdown-item-icon"><i class="fa-solid fa-calendar"></i></div>
+              <div class="dropdown-item-content">
+                <div class="dropdown-item-title">Laboratory Events</div>
+                <div class="dropdown-item-desc">Hackathon (CCS Days)</div>
+              </div>
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item community-dropdown-item" href="#/community/connect">
+              <div class="dropdown-item-icon"><i class="fa-solid fa-people-arrows"></i></div>
+              <div class="dropdown-item-content">
+                <div class="dropdown-item-title">Student Connect</div>
+                <div class="dropdown-item-desc">Make connections with kapwa CCS</div>
+              </div>
+            </a></li>
+          </ul>
+        </li>
         <li class="nav-item"><a class="nav-link" href="#" onclick="openAboutModal(); return false;">About</a></li>
         <li class="nav-item"><a class="nav-link" href="#/login">Login</a></li>
         <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
@@ -102,6 +137,27 @@
           <div class="cta-section">
             <a href="#/login" class="btn-primary-cta">Get Started - Login</a>
             <a href="register.html" class="btn-secondary-cta">Create New Account</a>
+          </div>
+
+          <!-- LEADERBOARD SECTION -->
+          <div class="leaderboard-section">
+            <div class="leaderboard-header-container">
+              <div class="leaderboard-title-content">
+                <i class="fa-solid fa-crown"></i>
+                <h2>Top Sit-In Students Leaderboard</h2>
+              </div>
+              <p class="leaderboard-subtitle">See who's leading in laboratory sessions</p>
+            </div>
+
+            <div class="leaderboard-container">
+              <div id="leaderboard-list" class="leaderboard-items">
+                <!-- Leaderboard items will be loaded here -->
+                <div class="leaderboard-loading">
+                  <div class="spinner-border" style="color: var(--violet);"></div>
+                  <p>Loading leaderboard...</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -290,7 +346,9 @@
     // Page routing logic
     function handleNavigation() {
       const hash = window.location.hash.slice(1) || '/home'; // Remove '#' and default to home
-      const page = hash.split('/')[1] || 'home';
+      const parts = hash.split('/').filter(p => p);
+      const page = parts[0] || 'home';
+      const subpage = parts[1] || null;
       
       // Hide all pages
       document.querySelectorAll('.page-section').forEach(el => el.style.display = 'none');
@@ -299,12 +357,46 @@
       const pageElement = document.getElementById(page + '-page');
       if (pageElement) {
         pageElement.style.display = 'block';
+        
+        // If it's a community subpage, scroll to appropriate section or show modal
+        if (page === 'community' && subpage) {
+          handleCommunitySubpage(subpage);
+        }
+        
         // Update navbar active state
-        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+        document.querySelectorAll('.navbar-nav .nav-link:not(.dropdown-toggle)').forEach(link => {
           link.classList.remove('active');
         });
         const activeLink = document.querySelector(`a[href="#/${page}"]`);
         if (activeLink) activeLink.classList.add('active');
+      }
+    }
+
+    // Handle community subpage navigation
+    function handleCommunitySubpage(subpage) {
+      // Map community subpages to actions
+      const communityActions = {
+        'sitin': () => {
+          alert('Please login to reserve a sit-in session.');
+          window.location.hash = '#/login';
+        },
+        'evaluation': () => {
+          alert('Please login to share your feedback.');
+          window.location.hash = '#/login';
+        },
+        'events': () => {
+          alert('Please login to see laboratory events.');
+          window.location.hash = '#/login';
+        },
+        'connect': () => {
+          alert('Please login or register to connect with other students.');
+          window.location.hash = '#/login';
+        }
+      };
+
+      const action = communityActions[subpage];
+      if (action) {
+        action();
       }
     }
     
